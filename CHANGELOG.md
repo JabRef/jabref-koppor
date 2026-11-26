@@ -11,60 +11,15 @@ Note that this project **does not** adhere to [Semantic Versioning](https://semv
 
 ### Added
 
-- We now focus the citation key field when a newly added entry opens in the entry editor. [#16929](https://github.com/JabRef/jabref/pull/16929)
-- We added creating a new entry by double-clicking the empty space below the last row of the entry table. [#16929](https://github.com/JabRef/jabref/pull/16929)
-
-- We added restoring of the library tab and entry that were selected when JabRef was closed. [#16911](https://github.com/JabRef/jabref/pull/16911)
-
-- We added an option to automatically merge changes made to the library file outside JabRef into the open library. [#8431](https://github.com/JabRef/jabref/issues/8431)
-- We added merging of conflicted copies left by sync clients, per library or as a global default (off by default). [#16827](https://github.com/JabRef/jabref/pull/16827)
-
-- We added support for fetching fulltext PDFs through a locally-running browser-extension provider. [#16124](https://github.com/JabRef/jabref/pull/16124)
-
-- We added restricting the columns of the consistency check to the fields a biblatex `.bbx` or `.cbx` style uses. [#17710](https://github.com/JabRef/jabref/pull/17710)
-
-- We added prefilling of the AUX file belonging to the library's LaTeX document in "New sublibrary based on AUX file". [#790](https://github.com/JabRef/jabref-koppor/pull/790)
-
-- Extracting references from a PDF now recognizes bibliographies typeset with biblatex, including alphabetic labels such as `[AL26]`. [#775](https://github.com/JabRef/jabref-koppor/pull/775)
-- We added `jabkit pdf check-references`, which reports faults of a PDF's printed reference list, such as DOIs given as URL. [#778](https://github.com/JabRef/jabref-koppor/pull/778)
-
-- We added "Help > View background tasks" and clearer "Quit anyway"/"Keep JabRef open" buttons when quitting during background tasks. [#12706](https://github.com/JabRef/jabref/issues/12706)
-
-- We added `jabkit get-fulltexts` to download and link full text PDFs, reporting the result per entry. [#770](https://github.com/JabRef/jabref-koppor/pull/770)
-
-- We added "Open folder as library" (File menu): a folder of PDFs and Hayagriva sidecar files (`.yml`, or `.md` notes with a Hayagriva frontmatter) opens as a library, and it is reopened on the next start. PDFs without a sidecar appear right away and get their metadata extracted in the background. Edits are not yet written back to the files. [#737](https://github.com/JabRef/jabref-koppor/pull/737)
-- Directory libraries now stay in sync with external file changes: creating, editing, deleting, or renaming `.yml`/`.md`/`.pdf` files in the opened folder updates the open library live, and renames keep the affected entries (selection and undo history survive). [#738](https://github.com/JabRef/jabref-koppor/pull/738)
-- Directory libraries now save into their sidecar files: edits are written back automatically (debounced until typing pauses; Ctrl+S forces the write and no longer creates a `.bib`), the first edit of a PDF-only entry creates a Markdown sidecar (`X.md` with the Hayagriva data as frontmatter and the comment fields as notes body), renaming a citation key renames the YAML key, and deleting an entry removes it from its file (the file is trashed once empty, the PDF stays). Hand-written content that JabRef does not understand survives rewrites. [#739](https://github.com/JabRef/jabref-koppor/pull/739)
-- The groups panel of a directory library now mirrors the folder structure: each subdirectory appears as a group containing the entries whose files live there (updated live as files change). [#740](https://github.com/JabRef/jabref-koppor/pull/740)
-- In directory libraries, a sidecar and its PDF are now renamed together to the configured filename pattern (Preferences > Linked files) whenever the entry is edited — e.g. changing the citation key renames both files. [#741](https://github.com/JabRef/jabref-koppor/pull/741)
-
 - We added semantic search in the PDFs of a library for AI agents, offered by the HTTP server and an agent skill. [#798](https://github.com/JabRef/jabref-koppor/pull/798)
 - We added an MCP server, with which AI agents can search the opened libraries and the PDFs linked to their entries. [#931](https://github.com/JabRef/jabref-issue-melting-pot/issues/931)
 
 ### Changed
 
-- We changed citation parsing to import the DOI's metadata when a pasted or pushed citation contains a DOI. [#17900](https://github.com/JabRef/jabref/pull/17900)
-
-- We changed the main table to keep the entry shown in the entry editor visible when enlarging the entry editor. [#17167](https://github.com/JabRef/jabref/pull/17167)
-
 - We changed how JabRef opens older libraries by asking which conversions to perform and remembering your choices. [#16941](https://github.com/JabRef/jabref/pull/16941)
-
-- We renamed the preference "Create backup" to "Create backups", because JabRef keeps multiple backup versions. [#780](https://github.com/JabRef/jabref-koppor/pull/780)
-
-- We changed the Hayagriva YAML export to keep data JabRef cannot edit (short titles, person aliases, additional identifiers) when re-exporting an imported file, to write comments, and to derive `date` from the BibTeX year/month fields. [#736](https://github.com/JabRef/jabref-koppor/pull/736)
-- Automatic file linking no longer links the Markdown sidecars of a directory library (Markdown files with a Hayagriva frontmatter); other Markdown files are still linked. [#741](https://github.com/JabRef/jabref-koppor/pull/741)
 
 ### Fixed
 
-- We fixed an issue where libraries opened or saved shortly before JabRef was killed were missing from recent libraries. [#16911](https://github.com/JabRef/jabref/pull/16911)
-
-- We fixed an issue where accepting an external change to an entry lost its table position, selection, and open entry editor. [#16813](https://github.com/JabRef/jabref/pull/16813)
-
-- We fixed an issue where the consistency check listed the entry types in random order. [#779](https://github.com/JabRef/jabref-koppor/pull/779)
-
-- We fixed an issue where failed full text downloads opened an error dialog for each entry. [#774](https://github.com/JabRef/jabref-koppor/pull/774)
-
-- We fixed an issue where full text documents for several selected entries were attached only after all searches finished. [koppor#772](https://github.com/JabRef/jabref-koppor/pull/772)
 - We fixed an issue where BST entry previews showed italic and bold text as Unicode mathematical letters. [#17902](https://github.com/JabRef/jabref/pull/17902)
 - We fixed an issue where the customized entry preview ignored small caps and showed LaTeX commands inside emphasized text. [#17902](https://github.com/JabRef/jabref/pull/17902)
 - We fixed nested LaTeX formatting, spacing, and ampersand escaping in HTML output and JStyle bibliographies. [#17921](https://github.com/JabRef/jabref/pull/17921)
