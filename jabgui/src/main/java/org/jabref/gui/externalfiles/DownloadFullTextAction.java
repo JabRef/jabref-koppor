@@ -11,6 +11,7 @@ import org.jabref.gui.DialogService;
 import org.jabref.gui.StateManager;
 import org.jabref.gui.actions.ActionHelper;
 import org.jabref.gui.actions.SimpleCommand;
+import org.jabref.gui.desktop.os.NativeDesktop;
 import org.jabref.gui.externalfiletype.StandardExternalFileType;
 import org.jabref.gui.fieldeditors.LinkedFileViewModel;
 import org.jabref.gui.preferences.GuiPreferences;
@@ -45,17 +46,20 @@ public class DownloadFullTextAction extends SimpleCommand {
     private final StateManager stateManager;
     private final GuiPreferences preferences;
     private final UiTaskExecutor taskExecutor;
+    private final NativeDesktop nativeDesktop;
     private final Function<BibEntry, Optional<FetcherResult>> fullTextFinder;
     private final Consumer<Runnable> uiThread;
 
     public DownloadFullTextAction(DialogService dialogService,
                                   StateManager stateManager,
                                   GuiPreferences preferences,
-                                  UiTaskExecutor taskExecutor) {
+                                  UiTaskExecutor taskExecutor,
+                                  NativeDesktop nativeDesktop) {
         this(dialogService,
                 stateManager,
                 preferences,
                 taskExecutor,
+                nativeDesktop,
                 entry -> new FulltextFetchers(preferences.getImportFormatPreferences(), preferences.getImporterPreferences()).findFullTextPDFAndUpdateDoi(entry),
                 UiTaskExecutor::runInJavaFXThread);
     }
@@ -64,12 +68,14 @@ public class DownloadFullTextAction extends SimpleCommand {
                            StateManager stateManager,
                            GuiPreferences preferences,
                            UiTaskExecutor taskExecutor,
+                           NativeDesktop nativeDesktop,
                            Function<BibEntry, Optional<FetcherResult>> fullTextFinder,
                            Consumer<Runnable> uiThread) {
         this.dialogService = dialogService;
         this.stateManager = stateManager;
         this.preferences = preferences;
         this.taskExecutor = taskExecutor;
+        this.nativeDesktop = nativeDesktop;
         this.fullTextFinder = fullTextFinder;
         this.uiThread = uiThread;
 
@@ -202,7 +208,8 @@ public class DownloadFullTextAction extends SimpleCommand {
                     databaseContext,
                     taskExecutor,
                     dialogService,
-                    preferences);
+                    preferences,
+                    nativeDesktop);
             // The URL is not linked on the entry, so there is no link to keep: a downloaded HTML page (paywall or
             // consent interstitial instead of the PDF) has to be deleted rather than left orphaned in the file directory.
             brokenPdfLink.ifPresentOrElse(

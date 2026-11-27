@@ -32,15 +32,15 @@ env:
     koppor/directory-mapping-preference
     # github.com/dlsc-software-consulting-gmbh/PDFViewFX/pull/48 in flight (JitPack build of the PR head)
     koppor/pdfviewfx-pr48
-  # Pull requests (JabRef/jabref or JabRef/jabref-koppor); the head branch of each open PR is merged, closed ones are skipped.
+  # Pull requests (any repository); the head branch of each open PR is merged, closed ones are skipped.
   # Non-draft PRs with their branch in JabRef/jabref are merged automatically, after everything listed here. List a PR here
   # to merge it earlier: on a conflict between two PRs, the one merged first gets in.
-  # Merge order: MILESTONES, then BRANCHES, then PRS in the order given, then the automatic ones, oldest PR first.
+  # Merge order: MILESTONES, then BRANCHES, then PRS in the order given, then the automatic ones, oldest PR first, then ALL_PRS_OF.
   # Only PRs neither on a milestone nor merged automatically belong here, e.g. JabRef/jabref PRs from forks.
   PRS: |
     https://github.com/JabRef/jabref/pull/17134
-    # Draft with its branch in JabRef/jabref-koppor, so it is not picked up automatically
-    https://github.com/JabRef/jabref-koppor/pull/786
+  # Repositories whose open PRs (drafts included) are all merged, after the automatic JabRef/jabref ones, oldest PR first.
+  ALL_PRS_OF: palukku/jabref
   # JabRef/jabref-koppor milestone numbers; their open PRs are merged before everything else, milestone by milestone
   # (PRs within one milestone by number). 1 = soon-upstream, 2 = for-upstream.
   MILESTONES: 1 2
@@ -297,7 +297,7 @@ jobs:
               return 0
             fi
             repo="${pr%/pull/*}"
-            ref="refs/candidates/${repo##*/}/${pr##*/}"
+            ref="refs/candidates/${repo#https://github.com/}/${pr##*/}"
             if ! git fetch --quiet --no-tags "https://github.com/$head_repo.git" "+$head_sha:$ref"; then
               bad "$branch ($pr): head cannot be fetched"
               echo "::warning title=Head not fetchable::$pr - skipped"
@@ -336,8 +336,12 @@ jobs:
           # Append every non-draft JabRef/jabref PR whose branch lives in JabRef/jabref (no forks); drop duplicates and the
           # milestone PRs merged above. Oldest PR first: on a conflict between two PRs the one merged first gets in, and a
           # long-open PR should not keep losing to PRs opened after it.
-          upstream_prs="$(gh pr list --repo JabRef/jabref --state open --limit 1000 --json url,isDraft,isCrossRepository,createdAt \
-            --jq 'sort_by(.createdAt) | .[] | select((.isDraft or .isCrossRepository) | not) | .url')"
+          # Bot PRs (dependency bumps) are skipped: an unreleased action/library bump broke the binaries build here.
+          upstream_prs="$(gh pr list --repo JabRef/jabref --state open --limit 1000 --json url,isDraft,isCrossRepository,createdAt,author \
+            --jq 'sort_by(.createdAt) | .[] | select((.isDraft or .isCrossRepository or .author.is_bot) | not) | .url')"
+          for repo in $ALL_PRS_OF; do
+            upstream_prs+=$'\n'"$(gh pr list --repo "$repo" --state open --limit 1000 --json url,createdAt,author --jq 'sort_by(.createdAt) | .[] | select(.author.is_bot | not) | .url')"
+          done
           PRS="$(printf '%s\n%s\n' "$PRS" "$upstream_prs" \
             | MILESTONE_PRS="$milestone_prs" awk 'BEGIN { n = split(ENVIRON["MILESTONE_PRS"], d, "\n"); for (i = 1; i <= n; i++) seen[d[i]] = 1 } !seen[$0]++')"
 

@@ -22,6 +22,7 @@ import javafx.collections.FXCollections;
 
 import org.jabref.gui.DialogService;
 import org.jabref.gui.JabRefGuiStateManager;
+import org.jabref.gui.desktop.os.NativeDesktop;
 import org.jabref.gui.externalfiletype.ExternalFileTypes;
 import org.jabref.gui.frame.ExternalApplicationsPreferences;
 import org.jabref.gui.preferences.GuiPreferences;
@@ -415,7 +416,7 @@ class DownloadFullTextActionTest {
             return CompletableFuture.completedFuture(null);
         }).when(taskExecutor).execute(any(BackgroundTask.class));
 
-        DownloadFullTextAction action = new DownloadFullTextAction(dialogService, stateManager, preferences, taskExecutor);
+        DownloadFullTextAction action = new DownloadFullTextAction(dialogService, stateManager, preferences, taskExecutor, mock(NativeDesktop.class));
 
         // Act: execute the full-text lookup.
         action.execute();
@@ -537,7 +538,7 @@ class DownloadFullTextActionTest {
             return CompletableFuture.completedFuture(null);
         }).when(taskExecutor).execute(any(BackgroundTask.class));
 
-        DownloadFullTextAction action = new DownloadFullTextAction(dialogService, stateManager, preferences, taskExecutor);
+        DownloadFullTextAction action = new DownloadFullTextAction(dialogService, stateManager, preferences, taskExecutor, mock(NativeDesktop.class));
 
         // Act: execute the full-text lookup.
         action.execute();
@@ -691,7 +692,8 @@ class DownloadFullTextActionTest {
                 dialogService,
                 stateManager,
                 preferences,
-                taskExecutor
+                taskExecutor,
+                mock(NativeDesktop.class)
         );
 
         // Act: run DOI discovery and full-text lookup.
@@ -806,7 +808,8 @@ class DownloadFullTextActionTest {
                 dialogService,
                 stateManager,
                 preferences,
-                taskExecutor
+                taskExecutor,
+                mock(NativeDesktop.class)
         );
 
         // Act: run DOI discovery and full-text lookup.
@@ -934,7 +937,7 @@ class DownloadFullTextActionTest {
         private Optional<String> brokenPdfLink = Optional.empty();
 
         RecordingDownloadFullTextAction(Function<BibEntry, Optional<FetcherResult>> fullTextFinder) {
-            super(dialogService, stateManager, preferences, taskExecutor, fullTextFinder, pendingUiActions::add);
+            super(dialogService, stateManager, preferences, taskExecutor, mock(NativeDesktop.class), fullTextFinder, pendingUiActions::add);
         }
 
         @Override
