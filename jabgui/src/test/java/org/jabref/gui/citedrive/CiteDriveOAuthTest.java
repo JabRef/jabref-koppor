@@ -3,14 +3,9 @@ package org.jabref.gui.citedrive;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Optional;
-import java.util.TreeSet;
-
-import javafx.collections.FXCollections;
 
 import org.jabref.gui.DialogService;
 import org.jabref.gui.desktop.os.NativeDesktop;
-import org.jabref.gui.externalfiletype.ExternalFileTypes;
-import org.jabref.gui.frame.ExternalApplicationsPreferences;
 import org.jabref.http.SrvStateManager;
 import org.jabref.http.server.manager.HttpServerManager;
 import org.jabref.logic.citedrive.CiteDriveOAuthService;
@@ -20,6 +15,7 @@ import org.jabref.logic.net.CiteDrivePreferences;
 import org.jabref.logic.preferences.CliPreferences;
 import org.jabref.logic.remote.RemotePreferences;
 
+import com.airhacks.afterburner.injection.Injector;
 import com.nimbusds.oauth2.sdk.token.AccessToken;
 import kong.unirest.core.HttpResponse;
 import kong.unirest.core.Unirest;
@@ -57,8 +53,7 @@ class CiteDriveOAuthTest {
     @Timeout(60)
     @Disabled
     void getToken() throws Exception {
-        ExternalApplicationsPreferences externalApplicationsPreferences = mock(ExternalApplicationsPreferences.class);
-        when(externalApplicationsPreferences.getExternalFileTypes()).thenReturn(FXCollections.observableSet(new TreeSet<>(ExternalFileTypes.getDefaultExternalFileTypes())));
+        NativeDesktop nativeDesktop = Injector.instantiateModelOrService(NativeDesktop.class);
 
         RemotePreferences remotePreferences = mock(RemotePreferences.class);
         when(remotePreferences.getHttpServerUri()).thenReturn(URI.create("http://localhost:23119"));
@@ -66,7 +61,7 @@ class CiteDriveOAuthTest {
 
         CiteDrivePreferences citeDrivePreferences = CiteDrivePreferences.getDefault();
 
-        CiteDriveOAuthService citeDriveOAuthService = new CiteDriveOAuthService(remotePreferences, citeDrivePreferences, OAUTH_SESSION_REGISTRY, page -> NativeDesktop.openBrowserShowPopup(page.uri().toASCIIString(), mock(DialogService.class), externalApplicationsPreferences), () -> true, URI.create("https://api-dev.citedrive.com/jabref/login/"), URI.create("https://api-dev.citedrive.com/o/token/"));
+        CiteDriveOAuthService citeDriveOAuthService = new CiteDriveOAuthService(remotePreferences, citeDrivePreferences, OAUTH_SESSION_REGISTRY, page -> nativeDesktop.openBrowserShowPopup(page.uri().toASCIIString(), mock(DialogService.class)), () -> true, URI.create("https://api-dev.citedrive.com/jabref/login/"), URI.create("https://api-dev.citedrive.com/o/token/"));
 
         Optional<AccessToken> actual = citeDriveOAuthService.authorizeInteractive().get();
         assertTrue(actual.isPresent());
@@ -77,8 +72,7 @@ class CiteDriveOAuthTest {
     @Timeout(60)
     @Disabled
     void putLibraryOAuthFromScratch() throws Exception {
-        ExternalApplicationsPreferences externalApplicationsPreferences = mock(ExternalApplicationsPreferences.class);
-        when(externalApplicationsPreferences.getExternalFileTypes()).thenReturn(FXCollections.observableSet(new TreeSet<>(ExternalFileTypes.getDefaultExternalFileTypes())));
+        NativeDesktop nativeDesktop = Injector.instantiateModelOrService(NativeDesktop.class);
 
         RemotePreferences remotePreferences = mock(RemotePreferences.class);
         when(remotePreferences.getHttpServerUri()).thenReturn(URI.create("http://localhost:23119"));
@@ -86,7 +80,7 @@ class CiteDriveOAuthTest {
 
         CiteDrivePreferences citeDrivePreferences = CiteDrivePreferences.getDefault();
 
-        CiteDriveOAuthService citeDriveOAuthService = new CiteDriveOAuthService(remotePreferences, citeDrivePreferences, OAUTH_SESSION_REGISTRY, page -> NativeDesktop.openBrowserShowPopup(page.uri().toASCIIString(), mock(DialogService.class), externalApplicationsPreferences), () -> true, URI.create("https://api-dev.citedrive.com/jabref/login/"), URI.create("https://api-dev.citedrive.com/o/token/"));
+        CiteDriveOAuthService citeDriveOAuthService = new CiteDriveOAuthService(remotePreferences, citeDrivePreferences, OAUTH_SESSION_REGISTRY, page -> nativeDesktop.openBrowserShowPopup(page.uri().toASCIIString(), mock(DialogService.class)), () -> true, URI.create("https://api-dev.citedrive.com/jabref/login/"), URI.create("https://api-dev.citedrive.com/o/token/"));
 
         Optional<AccessToken> actual = citeDriveOAuthService.authorizeInteractive().get();
         assertTrue(actual.isPresent());
@@ -120,8 +114,7 @@ class CiteDriveOAuthTest {
     @Timeout(60)
     @Disabled
     void putLibrary() throws Exception {
-        ExternalApplicationsPreferences externalApplicationsPreferences = mock(ExternalApplicationsPreferences.class);
-        when(externalApplicationsPreferences.getExternalFileTypes()).thenReturn(FXCollections.observableSet(new TreeSet<>(ExternalFileTypes.getDefaultExternalFileTypes())));
+        NativeDesktop nativeDesktop = Injector.instantiateModelOrService(NativeDesktop.class);
 
         RemotePreferences remotePreferences = mock(RemotePreferences.class);
         when(remotePreferences.getHttpServerUri()).thenReturn(URI.create("http://localhost:23119"));
@@ -129,7 +122,7 @@ class CiteDriveOAuthTest {
 
         CiteDrivePreferences citeDrivePreferences = CiteDrivePreferences.getDefault();
 
-        CiteDriveOAuthService citeDriveOAuthService = new CiteDriveOAuthService(remotePreferences, citeDrivePreferences, OAUTH_SESSION_REGISTRY, page -> NativeDesktop.openBrowserShowPopup(page.uri().toASCIIString(), mock(DialogService.class), externalApplicationsPreferences), () -> true, URI.create("https://api-dev.citedrive.com/jabref/login/"), URI.create("https://api-dev.citedrive.com/o/token/"));
+        CiteDriveOAuthService citeDriveOAuthService = new CiteDriveOAuthService(remotePreferences, citeDrivePreferences, OAUTH_SESSION_REGISTRY, page -> nativeDesktop.openBrowserShowPopup(page.uri().toASCIIString(), mock(DialogService.class)), () -> true, URI.create("https://api-dev.citedrive.com/jabref/login/"), URI.create("https://api-dev.citedrive.com/o/token/"));
 
         Optional<AccessToken> actual = citeDriveOAuthService.getAccessToken().get();
         assertTrue(actual.isPresent());

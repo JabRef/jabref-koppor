@@ -336,10 +336,11 @@ jobs:
           # Append every non-draft JabRef/jabref PR whose branch lives in JabRef/jabref (no forks); drop duplicates and the
           # milestone PRs merged above. Oldest PR first: on a conflict between two PRs the one merged first gets in, and a
           # long-open PR should not keep losing to PRs opened after it.
-          upstream_prs="$(gh pr list --repo JabRef/jabref --state open --limit 1000 --json url,isDraft,isCrossRepository,createdAt \
-            --jq 'sort_by(.createdAt) | .[] | select((.isDraft or .isCrossRepository) | not) | .url')"
+          # Bot PRs (dependency bumps) are skipped: an unreleased action/library bump broke the binaries build here.
+          upstream_prs="$(gh pr list --repo JabRef/jabref --state open --limit 1000 --json url,isDraft,isCrossRepository,createdAt,author \
+            --jq 'sort_by(.createdAt) | .[] | select((.isDraft or .isCrossRepository or .author.is_bot) | not) | .url')"
           for repo in $ALL_PRS_OF; do
-            upstream_prs+=$'\n'"$(gh pr list --repo "$repo" --state open --limit 1000 --json url,createdAt --jq 'sort_by(.createdAt) | .[].url')"
+            upstream_prs+=$'\n'"$(gh pr list --repo "$repo" --state open --limit 1000 --json url,createdAt,author --jq 'sort_by(.createdAt) | .[] | select(.author.is_bot | not) | .url')"
           done
           PRS="$(printf '%s\n%s\n' "$PRS" "$upstream_prs" \
             | MILESTONE_PRS="$milestone_prs" awk 'BEGIN { n = split(ENVIRON["MILESTONE_PRS"], d, "\n"); for (i = 1; i <= n; i++) seen[d[i]] = 1 } !seen[$0]++')"
