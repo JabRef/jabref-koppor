@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
+import java.util.function.Consumer;
 import java.util.function.Function;
 
 import org.jabref.gui.DialogService;
@@ -47,6 +48,7 @@ public class DownloadFullTextAction extends SimpleCommand {
     private final UiTaskExecutor taskExecutor;
     private final NativeDesktop nativeDesktop;
     private final Function<BibEntry, Optional<FetcherResult>> fullTextFinder;
+    private final Consumer<Runnable> uiThread;
 
     public DownloadFullTextAction(DialogService dialogService,
                                   StateManager stateManager,
@@ -58,7 +60,8 @@ public class DownloadFullTextAction extends SimpleCommand {
                 preferences,
                 taskExecutor,
                 nativeDesktop,
-                entry -> new FulltextFetchers(preferences.getImportFormatPreferences(), preferences.getImporterPreferences()).findFullTextPDFAndUpdateDoi(entry));
+                entry -> new FulltextFetchers(preferences.getImportFormatPreferences(), preferences.getImporterPreferences()).findFullTextPDFAndUpdateDoi(entry),
+                UiTaskExecutor::runInJavaFXThread);
     }
 
     DownloadFullTextAction(DialogService dialogService,
@@ -66,13 +69,15 @@ public class DownloadFullTextAction extends SimpleCommand {
                            GuiPreferences preferences,
                            UiTaskExecutor taskExecutor,
                            NativeDesktop nativeDesktop,
-                           Function<BibEntry, Optional<FetcherResult>> fullTextFinder) {
+                           Function<BibEntry, Optional<FetcherResult>> fullTextFinder,
+                           Consumer<Runnable> uiThread) {
         this.dialogService = dialogService;
         this.stateManager = stateManager;
         this.preferences = preferences;
         this.taskExecutor = taskExecutor;
         this.nativeDesktop = nativeDesktop;
         this.fullTextFinder = fullTextFinder;
+        this.uiThread = uiThread;
 
         this.executable.bind(ActionHelper.needsEntriesSelected(stateManager));
     }
@@ -105,10 +110,9 @@ public class DownloadFullTextAction extends SimpleCommand {
             }
         }
 
-        BackgroundTask<List<EntryDownload>> findFullTextsTask = new BackgroundTask<>() {
+        BackgroundTask<Void> findFullTextsTask = new BackgroundTask<>() {
             @Override
-            public List<EntryDownload> call() {
-                List<EntryDownload> downloads = new ArrayList<>(entries.size());
+            public Void call() {
                 int count = 0;
                 // Marked here, not before submission, so a task cancelled while queued leaves no spinner behind
                 UiTaskExecutor.runInJavaFXThread(() -> entries.forEach(EntryLookupsInProgress.FULLTEXT::started));
@@ -123,8 +127,10 @@ public class DownloadFullTextAction extends SimpleCommand {
                             BibEntry lookupEntry = new BibEntry(lookupSnapshot);
                             Optional<FetcherResult> result = fullTextFinder.apply(lookupEntry);
                             Optional<String> brokenPdfLink = findBrokenPdfLink(lookupSnapshot, databaseContext, result);
-                            downloads.add(new EntryDownload(entry, lookupSnapshot, result, brokenPdfLink,
-                                    lookupEntry.getField(StandardField.DOI).flatMap(DOI::parse).map(DOI::asString)));
+                            EntryDownload download = new EntryDownload(entry, lookupSnapshot, result, brokenPdfLink,
+                                    lookupEntry.getField(StandardField.DOI).flatMap(DOI::parse).map(DOI::asString));
+                            // Attach right away: a lookup can take minutes, so the user should not wait for the whole selection
+                            uiThread.accept(() -> downloadFullText(download, databaseContext));
                         } finally {
                             count++;
                             EntryLookupsInProgress.FULLTEXT.finishedLater(entry);
@@ -137,56 +143,53 @@ public class DownloadFullTextAction extends SimpleCommand {
                     List<BibEntry> notLookedUp = entries.subList(count, entries.size());
                     notLookedUp.forEach(EntryLookupsInProgress.FULLTEXT::finishedLater);
                 }
-                return downloads;
+                return null;
             }
         };
 
         findFullTextsTask.setTitle(Localization.lang("Download full text documents"))
                          .withInitialMessage(Localization.lang("Looking for full text document..."))
                          .showToUser(true)
-                         .onSuccess(downloads -> downloadFullTexts(downloads, databaseContext))
                          .executeWith(taskExecutor);
     }
 
-    private void downloadFullTexts(List<EntryDownload> downloads, BibDatabaseContext databaseContext) {
+    private void downloadFullText(EntryDownload download, BibDatabaseContext databaseContext) {
         if (!stateManager.getOpenDatabases().contains(databaseContext)) {
-            LOGGER.debug("Library closed before the full text search finished; skipping downloads.");
+            LOGGER.debug("Library closed before the full text search finished; skipping download.");
             return;
         }
 
-        for (EntryDownload download : downloads) {
-            BibEntry entry = download.entry();
-            if (!databaseContext.getDatabase().getEntries().contains(entry)) {
-                continue;
-            }
-            if (!entry.equals(download.lookupSnapshot())) {
-                LOGGER.debug("Entry changed during full text search; skipping download.");
-                continue;
-            }
-
-            // [impl->req~fetchers.fulltext-doi-persistence~1]
-            if (entry.getField(StandardField.DOI).flatMap(DOI::parse).isEmpty()) {
-                download.doi().ifPresent(doi -> stateManager.getUndoManager(databaseContext).applyEdit(
-                        new UndoableFieldChange(entry, StandardField.DOI, entry.getField(StandardField.DOI).orElse(null), doi)));
-            }
-            // [impl->req~fetchers.fulltext-stale-link~1]
-            if (download.result().isEmpty() && download.doi().isEmpty()) {
-                download.brokenPdfLink().ifPresent(link -> {
-                    List<LinkedFile> files = new ArrayList<>(entry.getFiles());
-                    files.removeIf(file -> file.getLink().equals(link));
-                    stateManager.getUndoManager(databaseContext).applyEdit(new UndoableFieldChange(entry, StandardField.FILE,
-                            entry.getField(StandardField.FILE).orElse(null),
-                            files.isEmpty() ? null : FileFieldWriter.getStringRepresentation(files)));
-                    String citationKey = entry.getCitationKey().orElse(Localization.lang("undefined"));
-                    dialogService.notify(Localization.lang("Removed missing file link %0 from entry %1.", link, citationKey));
-                    LOGGER.info("Removed missing file link {} from entry {}.", link, citationKey);
-                });
-            }
-            download.result().ifPresentOrElse(
-                    result -> addLinkedFileFromURL(databaseContext, result, entry, download.brokenPdfLink()),
-                    () -> dialogService.notify(Localization.lang("No full text document found for entry %0.",
-                            entry.getCitationKey().orElse(Localization.lang("undefined")))));
+        BibEntry entry = download.entry();
+        if (!databaseContext.getDatabase().getEntries().contains(entry)) {
+            return;
         }
+        if (!entry.equals(download.lookupSnapshot())) {
+            LOGGER.debug("Entry changed during full text search; skipping download.");
+            return;
+        }
+
+        // [impl->req~fetchers.fulltext-doi-persistence~1]
+        if (entry.getField(StandardField.DOI).flatMap(DOI::parse).isEmpty()) {
+            download.doi().ifPresent(doi -> stateManager.getUndoManager(databaseContext).applyEdit(
+                    new UndoableFieldChange(entry, StandardField.DOI, entry.getField(StandardField.DOI).orElse(null), doi)));
+        }
+        // [impl->req~fetchers.fulltext-stale-link~1]
+        if (download.result().isEmpty() && download.doi().isEmpty()) {
+            download.brokenPdfLink().ifPresent(link -> {
+                List<LinkedFile> files = new ArrayList<>(entry.getFiles());
+                files.removeIf(file -> file.getLink().equals(link));
+                stateManager.getUndoManager(databaseContext).applyEdit(new UndoableFieldChange(entry, StandardField.FILE,
+                        entry.getField(StandardField.FILE).orElse(null),
+                        files.isEmpty() ? null : FileFieldWriter.getStringRepresentation(files)));
+                String citationKey = entry.getCitationKey().orElse(Localization.lang("undefined"));
+                dialogService.notify(Localization.lang("Removed missing file link %0 from entry %1.", link, citationKey));
+                LOGGER.info("Removed missing file link {} from entry {}.", link, citationKey);
+            });
+        }
+        download.result().ifPresentOrElse(
+                result -> addLinkedFileFromURL(databaseContext, result, entry, download.brokenPdfLink()),
+                () -> dialogService.notify(Localization.lang("No full text document found for entry %0.",
+                        entry.getCitationKey().orElse(Localization.lang("undefined")))));
     }
 
     /// This method attaches a linked file from a URL (if not already linked) to an entry using the key and value pair
