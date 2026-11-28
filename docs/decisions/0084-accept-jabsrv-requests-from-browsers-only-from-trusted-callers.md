@@ -42,6 +42,7 @@ flowchart LR
     subgraph Browser
         W[Website]
         M[JabMap web]
+        C[CiteDrive export page]
         E[Browser extension]
     end
     H((HTTP 23119))
@@ -55,6 +56,7 @@ flowchart LR
     end
     W -- "website Origin, or cross-site" --- H
     M -- "Origin jabref.github.io" --- H
+    C -- "Origin app.citedrive.com" --- H
     E -- "extension Origin, or no Origin" --- H
     H --- S
     E --- N
@@ -91,7 +93,7 @@ Which requests should jabsrv accept?
 ## Decision Drivers
 
 * A website must not read or change a library or trigger an action in JabRef.
-* The published browser extension, JabMap, CAYW clients, and the CiteDrive login must keep working.
+* The published browser extension, JabMap, CAYW clients, and the CiteDrive login and export page must keep working.
 * No new preference and no pairing step.
 
 ## Considered Options
@@ -114,7 +116,7 @@ A `ContainerRequestFilter` handles each request. The first matching row applies.
 | 3 | `GET /` (static page) or `GET /callback` (OAuth redirect, protected by `state`) | allow |
 | 4 | No `Origin`, and `Sec-Fetch-Site` is absent, `none`, or `same-origin` (editors, curl, typed URLs) | allow |
 | 5 | `Origin` is a browser extension (`chrome-extension://`, `moz-extension://`, `safari-web-extension://`) | allow |
-| 6 | `Origin` is `https://jabref.github.io` or a localhost origin (JabMap web, local development) | allow |
+| 6 | `Origin` is `https://jabref.github.io`, the origin of the configured CiteDrive web address, or a localhost origin (JabMap web, CiteDrive export page, local development) | allow |
 | 7 | `X-JabRef-Connector` is present (desktop applications with a browser engine, e.g., JabMap desktop) | allow |
 | 8 | Everything else | 403 |
 
@@ -144,7 +146,7 @@ See [ADR-0085](0085-protect-jabsrv-against-other-local-users-with-an-opt-in-toke
 ### Consequences
 
 * Good, because links, forms, and fetches from websites are rejected, even after the user allowed local network access for the site.
-* Good, because the published extension, JabMap web, CAYW clients, and the CiteDrive login work unchanged.
+* Good, because the published extension, JabMap web, CAYW clients, and the CiteDrive login and export page work unchanged.
 * Good, because there is no preference and no stored secret.
 * Bad, because JabMap desktop sends no `Origin` and has to add `X-JabRef-Connector`.
 * Bad, because `https://jabref.github.io` is hard-coded. A new web client needs a code change.
@@ -176,7 +178,7 @@ Implemented in [#15295](https://github.com/JabRef/jabref/pull/15295).
 ### Require `X-JabRef-Connector` on requests with an `Origin` header
 
 * Good, because it is a small check.
-* Bad, because JabMap web and the published extension do not send the header.
+* Bad, because JabMap web, the CiteDrive export page, and the published extension do not send the header.
 * Bad, because links and images carry no `Origin`, so they are not checked.
 * Bad, because DNS rebinding still works.
 

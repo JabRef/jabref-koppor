@@ -138,7 +138,7 @@ It works in Chrome since [JabRef-Browser-Extension#700](https://github.com/JabRe
 The Chrome rows come from a test extension that sends the same two requests (`GET /` and `POST /libraries/current/entries`).
 
 Editors, curl, and scripts send neither header.
-The CiteDrive redirect to `/callback` was not measured.
+The CiteDrive redirect to `/callback` and the CiteDrive export page were not measured.
 
 The Word add-in does not use jabsrv.
 Its last commit is from 2023, and [JabRef-Word-Addin#568](https://github.com/JabRef/JabRef-Word-Addin/pull/568) (not merged) calls `https://localhost:6051`.
