@@ -11,11 +11,11 @@ import javafx.scene.layout.Priority;
 import org.jabref.gui.icon.IconTheme;
 import org.jabref.gui.preferences.AbstractPreferenceTabView;
 import org.jabref.gui.util.ControlHelper;
+import org.jabref.injection.Injector;
 import org.jabref.logic.journals.JournalAbbreviationRepository;
 import org.jabref.logic.l10n.Localization;
 import org.jabref.logic.openoffice.OpenOfficePreferences;
 
-import com.airhacks.afterburner.injection.Injector;
 import org.jspecify.annotations.NullMarked;
 
 @NullMarked

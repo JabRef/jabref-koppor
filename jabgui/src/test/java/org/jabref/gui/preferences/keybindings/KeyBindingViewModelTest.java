@@ -11,10 +11,10 @@ import org.jabref.gui.keyboard.KeyBindingRepository;
 import org.jabref.gui.preferences.GuiPreferences;
 import org.jabref.gui.preferences.keybindings.presets.BashKeyBindingPreset;
 import org.jabref.gui.preferences.keybindings.presets.MacOsKeyBindingPreset;
+import org.jabref.injection.Injector;
 import org.jabref.logic.preferences.CliPreferences;
 import org.jabref.support.DisabledOnCIServer;
 
-import com.airhacks.afterburner.injection.Injector;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.EnabledOnOs;
 import org.junit.jupiter.api.condition.OS;

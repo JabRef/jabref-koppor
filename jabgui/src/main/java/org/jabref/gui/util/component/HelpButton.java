@@ -10,9 +10,9 @@ import org.jabref.gui.edit.OpenBrowserAction;
 import org.jabref.gui.help.HelpAction;
 import org.jabref.gui.icon.IconTheme;
 import org.jabref.gui.util.BindingsHelper;
+import org.jabref.injection.Injector;
 import org.jabref.logic.help.HelpFile;
 
-import com.airhacks.afterburner.injection.Injector;
 import org.jspecify.annotations.NonNull;
 
 public class HelpButton extends Button {

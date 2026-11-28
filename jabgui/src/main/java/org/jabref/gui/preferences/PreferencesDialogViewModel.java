@@ -45,6 +45,7 @@ import org.jabref.gui.preferences.table.TableTab;
 import org.jabref.gui.preferences.websearch.WebSearchTab;
 import org.jabref.gui.preferences.xmp.XmpPrivacyTab;
 import org.jabref.gui.util.FileDialogConfiguration;
+import org.jabref.injection.Injector;
 import org.jabref.logic.JabRefException;
 import org.jabref.logic.ai.preferences.AiPreferences;
 import org.jabref.logic.l10n.Localization;
@@ -56,7 +57,6 @@ import org.jabref.logic.util.StandardFileType;
 import org.jabref.logic.util.TaskExecutor;
 import org.jabref.model.entry.BibEntryTypesManager;
 
-import com.airhacks.afterburner.injection.Injector;
 import org.jspecify.annotations.NullMarked;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

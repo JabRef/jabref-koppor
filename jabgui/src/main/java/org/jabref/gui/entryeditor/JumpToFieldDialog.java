@@ -11,10 +11,10 @@ import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 
 import org.jabref.gui.util.BaseDialog;
+import org.jabref.gui.util.ViewLoader;
 import org.jabref.logic.l10n.Localization;
 import org.jabref.logic.util.strings.StringUtil;
 
-import com.airhacks.afterburner.views.ViewLoader;
 import org.controlsfx.control.textfield.AutoCompletionBinding;
 import org.controlsfx.control.textfield.TextFields;
 

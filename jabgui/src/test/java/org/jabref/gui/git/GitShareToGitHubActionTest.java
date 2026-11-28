@@ -6,12 +6,12 @@ import java.util.Optional;
 import org.jabref.gui.DialogService;
 import org.jabref.gui.JabRefGuiStateManager;
 import org.jabref.gui.StateManager;
+import org.jabref.injection.Injector;
 import org.jabref.logic.git.GitHandler;
 import org.jabref.logic.git.util.GitHandlerRegistry;
 import org.jabref.logic.shared.DatabaseLocation;
 import org.jabref.model.database.BibDatabaseContext;
 
-import com.airhacks.afterburner.injection.Injector;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 

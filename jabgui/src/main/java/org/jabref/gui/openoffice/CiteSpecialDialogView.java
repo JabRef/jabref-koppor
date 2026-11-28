@@ -9,11 +9,11 @@ import javafx.scene.control.Toggle;
 import javafx.scene.control.ToggleGroup;
 
 import org.jabref.gui.util.BaseDialog;
+import org.jabref.gui.util.ViewLoader;
 import org.jabref.logic.l10n.Localization;
 import org.jabref.logic.openoffice.engine.StyleCapabilities;
 import org.jabref.model.openoffice.style.CitationType;
 
-import com.airhacks.afterburner.views.ViewLoader;
 import org.jspecify.annotations.NullMarked;
 
 @NullMarked
