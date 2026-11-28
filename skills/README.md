@@ -4,7 +4,7 @@ This directory contains [Agent Skills](https://agentskills.io/) usable by AI age
 
 Skills are grouped in two categories:
 
-- `users/` — skills for working *with* JabRef and its CLI `jabkit`: managing BibTeX/biblatex libraries, extracting references from PDF papers, fetching entries.
+- `users/` — skills for working *with* JabRef and its CLI `jabkit`: managing BibTeX/biblatex libraries, extracting references from PDF papers, fetching entries, semantic search in the PDFs of a library opened in JabRef.
 - `developers/` — skills for working *on* the JabRef codebase.
 
 ## Installation
@@ -23,4 +23,4 @@ npx skills add JabRef/jabref --skill pdf-to-bibtex
 
 ## Contributing
 
-Each skill is a directory containing a `SKILL.md` with YAML frontmatter (`name`, `description`) followed by instructions for the agent. Keep instructions in sync with the actual `jabkit` commands (see `jabkit/src/main/java/org/jabref/toolkit/commands/`).
+Each skill is a directory containing a `SKILL.md` with YAML frontmatter (`name`, `description`) followed by instructions for the agent. Keep instructions in sync with the actual `jabkit` commands (see `jabkit/src/main/java/org/jabref/toolkit/commands/`) and the resources of the HTTP server (see `jabsrv/src/main/java/org/jabref/http/server/resources/`).

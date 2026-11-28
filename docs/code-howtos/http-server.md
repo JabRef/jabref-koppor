@@ -74,6 +74,15 @@ The library name `current` denotes the currently focussed library in JabRef.
 ./gradlew :jabsrv-cli:run --args="../jablib/src/test/resources/testbib/complex.bib"
 ```
 
+## Semantic search for external AI agents
+
+`POST /libraries/{id}/ai/search` searches the embeddings JabRef generated for the files linked to the entries of a library ([ADR-0086](../decisions/0086-offer-jabref-to-external-ai-agents-via-http-skill-and-mcp.md), [requirement](../requirements/http-server.md)).
+Examples are in `jabsrv/src/test/rest-api.http`; the agent skill using the endpoint is `skills/users/jabref-semantic-search/SKILL.md`.
+
+The resource delegates to `org.jabref.logic.ai.rag.logic.SemanticSearch`.
+The GUI hands its `EmbeddingsSemanticSearch` to the `HttpServerManager`, because the embeddings store and the embedding model are owned by `AiService` and the store is locked for other processes.
+The stand-alone server (`jabsrv-cli`) binds `SemanticSearch.NONE` and answers `503`.
+
 ## Logging in to CiteDrive without the GUI
 
 `jabsrv --citedrive-login` prints the CiteDrive login address, waits for the browser to come back to `/callback`, stores the refresh token in the system keyring, and exits.

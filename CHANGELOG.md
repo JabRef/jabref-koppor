@@ -11,6 +11,8 @@ Note that this project **does not** adhere to [Semantic Versioning](https://semv
 
 ### Added
 
+- We added semantic search in the PDFs of a library for AI agents, offered by the HTTP server and an agent skill. [#798](https://github.com/JabRef/jabref-koppor/pull/798)
+
 ### Changed
 
 ### Fixed

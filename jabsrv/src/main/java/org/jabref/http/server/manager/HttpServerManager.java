@@ -4,6 +4,7 @@ import java.net.URI;
 
 import org.jabref.http.SrvStateManager;
 import org.jabref.logic.UiMessageHandler;
+import org.jabref.logic.ai.rag.logic.SemanticSearch;
 import org.jabref.logic.citedrive.OAuthSessionRegistry;
 import org.jabref.logic.preferences.CliPreferences;
 
@@ -23,6 +24,14 @@ public class HttpServerManager implements AutoCloseable {
     @Nullable
     private HttpServerThread httpServerThread;
 
+    private SemanticSearch semanticSearch = SemanticSearch.NONE;
+
+    /// Sets the semantic search offered by the servers started from now on.
+    /// A setter instead of a parameter of [#start], because the server is also (re)started from the preferences dialog.
+    public synchronized void setSemanticSearch(SemanticSearch semanticSearch) {
+        this.semanticSearch = semanticSearch;
+    }
+
     public synchronized void start(CliPreferences preferences, SrvStateManager srvStateManager, OAuthSessionRegistry oAuthSessionRegistry, URI uri) {
         start(preferences, srvStateManager, null, oAuthSessionRegistry, uri);
     }
@@ -33,7 +42,7 @@ public class HttpServerManager implements AutoCloseable {
             return;
         }
 
-        httpServerThread = new HttpServerThread(preferences, srvStateManager, uiMessageHandler, oAuthSessionRegistry, uri);
+        httpServerThread = new HttpServerThread(preferences, srvStateManager, uiMessageHandler, semanticSearch, oAuthSessionRegistry, uri);
         // This enqueues the thread to run in the background
         // The JVM will take care of running it at some point in time in the future
         // Thus, we cannot check directly if it really runs
