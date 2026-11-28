@@ -106,6 +106,90 @@ The default API and web addresses point to CiteDrive's production servers; the p
 The user connects that page to JabRef's local HTTP server, selects references, a target library, and optionally a group.
 The page then sends BibTeX to `POST /libraries/{id}/entries`; JabRef opens the import dialog unless direct HTTP import is enabled.
 
+## Request headers of clients
+
+These measurements are the basis of [ADR-0084](../decisions/0084-accept-jabsrv-requests-from-browsers-only-from-trusted-callers.md).
+
+### Setup
+
+A small server on port 23119 took the place of JabRef and printed the headers of each request.
+It sent the same CORS headers as `CORSFilter`.
+
+- Firefox 156 on Linux, by hand
+- Chrome for Testing 153, headless, with a script. `--ip-address-space-overrides` marked the test website as public.
+- JabMap desktop built from [jabmap@0bd0064](https://github.com/JabRef/jabmap/commit/0bd00647f0933abb3aff14b6b8cd3cb5e81c5832), Electron 45
+
+### Clients
+
+| Client | `Origin` | `Sec-Fetch-Site` |
+| --- | --- | --- |
+| Browser extension 3.2.2 in Firefox | none on `GET`, `moz-extension://<random id>` on `POST` | `same-origin` |
+| Test extension in Chrome, with host permissions | none on `GET`, `chrome-extension://<id>` on `POST` | `none` |
+| Test extension in Chrome, without host permissions | `chrome-extension://<id>` | `cross-site` |
+| JabMap web (`https://jabref.github.io/jabmap/`) | `https://jabref.github.io` | `cross-site` |
+| JabMap desktop | none | `cross-site` |
+| Page on `http://localhost:8000` | `http://localhost:8000` | `same-site` |
+| Local HTML file in Chrome | `null` | `cross-site` |
+| URL typed into the address bar | none | `none` |
+| Page on a domain that resolves to 127.0.0.1 | none | absent, and `Host` is that domain |
+
+The JabRef extension is not in the Chrome Web Store ([JabRef-Browser-Extension#616](https://github.com/JabRef/JabRef-Browser-Extension/issues/616)).
+It works in Chrome since [JabRef-Browser-Extension#700](https://github.com/JabRef/JabRef-Browser-Extension/pull/700), but [`release.yml`](https://github.com/JabRef/JabRef-Browser-Extension/blob/f6a5d7cdd9c789c0a03f5ef206d1afc63f564b61/.github/workflows/release.yml#L92-L95) submits to Firefox only.
+The Chrome rows come from a test extension that sends the same two requests (`GET /` and `POST /libraries/current/entries`).
+
+Editors, curl, and scripts send neither header.
+The CiteDrive redirect to `/callback` and the CiteDrive export page were not measured.
+
+The Word add-in does not use jabsrv.
+Its last commit is from 2023, and [JabRef-Word-Addin#568](https://github.com/JabRef/JabRef-Word-Addin/pull/568) (not merged) calls `https://localhost:6051`.
+jabsrv has no HTTPS ([`Server.java`](https://github.com/JabRef/jabref/blob/9b8a93e48a5a410ea6c3a0726663293ee241fd0f/jabsrv/src/main/java/org/jabref/http/server/Server.java#L133)).
+
+### Requests from a website
+
+Target was `http://localhost:23119/better-bibtex/cayw`, without the local network permission.
+
+| Request | Firefox 156 | Chrome 153 |
+| --- | --- | --- |
+| Image, `fetch` with `no-cors` | prompt, blocked after "Block" | blocked |
+| `fetch`, iframe | not tested | blocked |
+| `location.href` | arrives, no prompt | arrives, no prompt |
+| Link click, `window.open`, meta refresh, form `GET` | not tested | arrives, no prompt |
+| Form `POST` with `text/plain` | not tested | arrives, no prompt |
+
+A navigation arrives like this in both browsers:
+
+```text
+GET /better-bibtex/cayw?probe=1&t=nav
+  host: localhost:23119
+  sec-fetch-site: cross-site
+  sec-fetch-mode: navigate
+  sec-fetch-dest: document
+```
+
+With the permission granted, everything arrives (Chrome 153):
+
+| Request | `Origin` | `Sec-Fetch-Site` |
+| --- | --- | --- |
+| Image, `fetch` with `no-cors` | none | `cross-site` |
+| `fetch`, form `POST` | the website | `cross-site` |
+| `fetch` with `X-JabRef-Connector` | only the `OPTIONS` preflight arrives | `cross-site` |
+
+Against a running JabRef with the HTTP server on:
+
+- A navigation to `/better-bibtex/cayw?probe=1` returns `ready`.
+- A `text/plain` form sent to `/libraries/current/entries` opens the import dialog with the parsed entry.
+
+### JabMap desktop
+
+JabMap desktop can add the header in its Electron main process. Tested with Electron 45:
+
+```js
+session.defaultSession.webRequest.onBeforeSendHeaders({ urls: ['http://localhost:23119/*'] }, (details, callback) => {
+    details.requestHeaders['X-JabRef-Connector'] = 'JabMap';
+    callback({ requestHeaders: details.requestHeaders });
+});
+```
+
 ## Developing with IntelliJ
 
 IntelliJ Ultimate offers a Markdown-based http-client. You need to open the file `jabsrv/src/test/rest-api.http`.
