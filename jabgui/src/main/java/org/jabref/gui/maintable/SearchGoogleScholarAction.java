@@ -50,7 +50,7 @@ public class SearchGoogleScholarAction extends SimpleCommand {
                 try {
                     nativeDesktop.openExternalViewer(databaseContext, url, StandardField.URL, dialogService, bibEntries.getFirst());
                 } catch (IOException ex) {
-                    LOGGER.warn("Could not open Google Scholar", ex);
+                    LOGGER.error("Could not open Google Scholar", ex);
                     dialogService.notify(Localization.lang("Unable to open Google Scholar.") + " " + ex.getMessage());
                 }
             });

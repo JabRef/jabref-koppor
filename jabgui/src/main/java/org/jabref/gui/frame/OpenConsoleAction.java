@@ -53,7 +53,7 @@ public class OpenConsoleAction extends SimpleCommand {
             try {
                 nativeDesktop.openConsole(path, dialogService);
             } catch (IOException e) {
-                LOGGER.info("Could not open console", e);
+                LOGGER.error("Could not open console", e);
                 dialogService.showErrorDialogAndWait(Localization.lang("Open terminal here"), Optional.ofNullable(e.getMessage()).orElse(""), e);
             }
         });

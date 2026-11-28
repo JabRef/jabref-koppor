@@ -113,7 +113,7 @@ public abstract class SendAsEMailAction extends SimpleCommand {
                 try {
                     nativeDesktop.openFolderAndSelectFile(path.toAbsolutePath(), dialogService);
                 } catch (IOException e) {
-                    LOGGER.debug("Cannot open file", e);
+                    LOGGER.error("Cannot open file", e);
                 }
             }
         }

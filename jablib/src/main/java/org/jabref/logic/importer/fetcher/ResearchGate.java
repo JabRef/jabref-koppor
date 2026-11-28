@@ -66,7 +66,7 @@ public class ResearchGate implements FulltextFetcher, EntryBasedFetcher, SearchB
         try {
             html = getHTML(entry);
         } catch (FetcherException | NullPointerException e) {
-            LOGGER.debug("ResearchGate server is not available", e);
+            LOGGER.error("ResearchGate server is not available", e);
             return Optional.empty();
         }
         Elements eLink = html.getElementsByTag("section");
@@ -240,7 +240,7 @@ public class ResearchGate implements FulltextFetcher, EntryBasedFetcher, SearchB
                 entry = parser.parseSingleEntry(bib);
                 entry.ifPresent(list::add);
             } catch (ParseException e) {
-                LOGGER.debug("Entry is not convertible to BibTeX", e);
+                LOGGER.error("Entry is not convertible to BibTeX", e);
             }
         }
         return list;
@@ -251,7 +251,7 @@ public class ResearchGate implements FulltextFetcher, EntryBasedFetcher, SearchB
             URL url = URLUtil.create(urlString);
             return Optional.of(new BufferedReader(new InputStreamReader(url.openStream())));
         } catch (IOException e) {
-            LOGGER.debug("Wrong URL", e);
+            LOGGER.error("Wrong URL", e);
             return Optional.empty();
         }
     }

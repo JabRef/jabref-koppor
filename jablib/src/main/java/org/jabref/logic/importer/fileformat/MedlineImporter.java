@@ -128,7 +128,7 @@ public class MedlineImporter extends Importer implements Parser {
                 }
             }
         } catch (XMLStreamException e) {
-            LOGGER.debug("could not parse document", e);
+            LOGGER.error("could not parse document", e);
             return ParserResult.fromError(e);
         }
 

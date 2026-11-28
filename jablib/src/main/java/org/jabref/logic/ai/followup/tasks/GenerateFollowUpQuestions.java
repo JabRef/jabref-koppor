@@ -55,7 +55,7 @@ public class GenerateFollowUpQuestions extends BackgroundTask<List<String>> {
                                                   .limit(aiPreferences.getFollowUpQuestionsCount())
                                                   .toList();
 
-        LOGGER.debug("Generated {} follow-up questions", questions.size());
+        LOGGER.atDebug().addArgument(() -> questions.size()).log("Generated {} follow-up questions");
 
         return questions.subList(0, Math.min(questions.size(), aiPreferences.getFollowUpQuestionsCount()));
     }

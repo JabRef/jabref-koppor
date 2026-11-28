@@ -318,7 +318,7 @@ public class OOTextWriter {
         } catch (UnknownPropertyException |
                  PropertyVetoException |
                  WrappedTargetException ex) {
-            LOGGER.warn("exception caught", ex);
+            LOGGER.error("exception caught", ex);
         }
 
         mpss.setAllPropertiesToDefault();
@@ -381,7 +381,7 @@ public class OOTextWriter {
                     CHAR_ESCAPEMENT_HEIGHT
             });
         } catch (UnknownPropertyException ex) {
-            LOGGER.warn("Could not reset escapement format", ex);
+            LOGGER.error("Could not reset escapement format", ex);
         }
     }
 
@@ -554,7 +554,7 @@ public class OOTextWriter {
                 mpss.setPropertiesToDefault(delNamesArray);
                 mps.setPropertyValues(namesArray, values.toArray());
             } catch (UnknownPropertyException ex) {
-                LOGGER.warn("UnknownPropertyException in FormattingPropertyStack.apply", ex);
+                LOGGER.error("UnknownPropertyException in FormattingPropertyStack.apply", ex);
             } catch (PropertyVetoException _) {
                 LOGGER.warn("PropertyVetoException in FormattingPropertyStack.apply");
             } catch (WrappedTargetException _) {

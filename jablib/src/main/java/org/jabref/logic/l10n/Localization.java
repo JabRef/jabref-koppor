@@ -79,7 +79,7 @@ public class Localization {
             createResourceBundles(locale);
         } catch (MissingResourceException ex) {
             // should not happen as we have scripts to enforce this
-            LoggerFactory.getLogger(Localization.class).warn("Could not find bundles for language {}, switching to full english language", locale, ex);
+            LoggerFactory.getLogger(Localization.class).error("Could not find bundles for language {}, switching to full english language", locale, ex);
             setLanguage(Language.ENGLISH);
         }
     }

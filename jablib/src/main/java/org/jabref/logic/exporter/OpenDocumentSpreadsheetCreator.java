@@ -90,7 +90,7 @@ public class OpenDocumentSpreadsheetCreator extends Exporter {
         try {
             Files.delete(tmpFile);
         } catch (IOException e) {
-            LOGGER.info("Cannot delete temporary export file", e);
+            LOGGER.error("Cannot delete temporary export file", e);
         }
     }
 
@@ -128,7 +128,7 @@ public class OpenDocumentSpreadsheetCreator extends Exporter {
         try (InputStream in = OpenDocumentSpreadsheetCreator.class.getResourceAsStream(resource)) {
             in.transferTo(out);
         } catch (IOException e) {
-            LOGGER.warn("Cannot get resource", e);
+            LOGGER.error("Cannot get resource", e);
         }
     }
 }

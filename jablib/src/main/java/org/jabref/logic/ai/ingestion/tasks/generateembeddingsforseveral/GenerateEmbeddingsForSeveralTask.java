@@ -52,7 +52,7 @@ public class GenerateEmbeddingsForSeveralTask extends BackgroundTask<Void> {
 
     @Override
     public Void call() throws ExecutionException, InterruptedException {
-        LOGGER.debug("Starting embeddings generation of several files for {}", request.groupName().get());
+        LOGGER.atDebug().addArgument(() -> request.groupName().get()).log("Starting embeddings generation of several files for {}");
 
         List<Pair<Future<Void>, String>> futures = new ArrayList<>();
 
@@ -87,7 +87,7 @@ public class GenerateEmbeddingsForSeveralTask extends BackgroundTask<Void> {
             pair.getKey().get();
         }
 
-        LOGGER.debug("Finished embeddings generation task of several files for {}", request.groupName().get());
+        LOGGER.atDebug().addArgument(() -> request.groupName().get()).log("Finished embeddings generation task of several files for {}");
         progressCounter.stop();
         return null;
     }

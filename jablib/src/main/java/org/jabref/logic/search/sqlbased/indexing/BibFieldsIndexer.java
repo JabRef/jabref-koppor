@@ -181,7 +181,7 @@ public class BibFieldsIndexer {
             task.updateProgress(i, count);
             task.updateMessage(Localization.lang("%0 of %1 entries added to the index.", i, count));
         }
-        LOGGER.debug("Added {} entries to index in {} ms", count, System.currentTimeMillis() - startTime);
+        LOGGER.atDebug().addArgument(count).addArgument(() -> System.currentTimeMillis() - startTime).log("Added {} entries to index in {} ms");
     }
 
     private void addToIndex(BibEntry bibEntry) {

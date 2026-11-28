@@ -95,7 +95,7 @@ public abstract class AbstractPushToApplication implements PushToApplication {
                 ProcessLauncher.startDetached(processBuilder);
             }
         } catch (IOException excep) {
-            LOGGER.warn("Error: Could not call executable '{}'", commandPath, excep);
+            LOGGER.error("Error: Could not call executable '{}'", commandPath, excep);
             couldNotCall = true;
         }
     }
@@ -184,7 +184,7 @@ public abstract class AbstractPushToApplication implements PushToApplication {
             processBuilder.command(command);
             ProcessLauncher.startDetached(processBuilder);
         } catch (IOException excep) {
-            LOGGER.warn("Error: Could not call executable '{}'", commandPath, excep);
+            LOGGER.error("Error: Could not call executable '{}'", commandPath, excep);
             couldNotCall = true;
         }
     }

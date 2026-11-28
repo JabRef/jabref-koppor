@@ -63,7 +63,7 @@ public class SWHID implements Identifier {
         try {
             return Optional.of(new URI(SWHID_PREFIX + swhid));
         } catch (URISyntaxException e) {
-            LOGGER.debug("Could not create URI for SWHID {}", swhid, e);
+            LOGGER.error("Could not create URI for SWHID {}", swhid, e);
             return Optional.empty();
         }
     }

@@ -61,7 +61,7 @@ final class KeyringUtil {
         try (Keyring keyring = Keyring.create()) {
             return Optional.ofNullable(readSecret(keyring, slot)).filter(StringUtil::isNotBlank);
         } catch (Exception ex) {
-            LOGGER.warn("Could not open keyring", ex);
+            LOGGER.error("Could not open keyring", ex);
             return Optional.empty();
         }
     }

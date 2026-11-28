@@ -168,7 +168,7 @@ public class LinkedFileTransferHelper {
                     .sorted()
                     .findFirst();
         } catch (UncheckedIOException ex) {
-            LOGGER.warn("Could not search for file {} in {}", path, directories, ex);
+            LOGGER.error("Could not search for file {} in {}", path, directories, ex);
             return Optional.empty();
         }
     }

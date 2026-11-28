@@ -84,7 +84,7 @@ public class ZoteroCitationMarkParser {
 
             return entries;
         } catch (JsonParseException | NumberFormatException | NoSuchElementException e) {
-            LOGGER.debug("Could not parse Zotero CSL citation JSON", e);
+            LOGGER.error("Could not parse Zotero CSL citation JSON", e);
             return List.of();
         }
     }
@@ -118,7 +118,7 @@ public class ZoteroCitationMarkParser {
             }
             return entries;
         } catch (JsonParseException | NumberFormatException | NoSuchElementException e) {
-            LOGGER.debug("Could not parse CSL JSON items", e);
+            LOGGER.error("Could not parse CSL JSON items", e);
             return List.of();
         }
     }

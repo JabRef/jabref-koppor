@@ -41,7 +41,7 @@ public class RemoteClient {
                 return false;
             }
         } catch (IOException e) {
-            LOGGER.debug("Could not ping server at port {}", port, e);
+            LOGGER.error("Could not ping server at port {}", port, e);
             return false;
         }
     }
@@ -56,7 +56,7 @@ public class RemoteClient {
             Pair<RemoteMessage, Object> response = protocol.receiveMessage();
             return response.getKey() == RemoteMessage.OK;
         } catch (IOException e) {
-            LOGGER.debug("Could not send args {} to the server at port {}", String.join(", ", args), port, e);
+            LOGGER.error("Could not send args {} to the server at port {}", String.join(", ", args), port, e);
             return false;
         }
     }
@@ -70,7 +70,7 @@ public class RemoteClient {
             Pair<RemoteMessage, Object> response = protocol.receiveMessage();
             return response.getKey() == RemoteMessage.OK;
         } catch (IOException e) {
-            LOGGER.debug("Could not send focus command to the server at port {}", port, e);
+            LOGGER.error("Could not send focus command to the server at port {}", port, e);
             return false;
         }
     }

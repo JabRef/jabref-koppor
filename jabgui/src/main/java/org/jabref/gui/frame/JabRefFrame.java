@@ -1010,7 +1010,7 @@ public class JabRefFrame extends BorderPane implements LibraryTabContainer, UiMe
                 try {
                     nativeDesktop.openFolderAndSelectFile(path, dialogService);
                 } catch (IOException e) {
-                    LOGGER.info("Could not open folder", e);
+                    LOGGER.error("Could not open folder", e);
                 }
             });
         }

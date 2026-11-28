@@ -79,7 +79,7 @@ public class ApsFetcher implements FulltextFetcher {
                 return Optional.of(urlParts[1]);
             }
         } catch (IOException e) {
-            LOGGER.warn("Error connecting to APS", e);
+            LOGGER.error("Error connecting to APS", e);
         }
         return Optional.empty();
     }

@@ -49,7 +49,7 @@ public class RemoteListenerServer implements Runnable {
                 } catch (SocketException _) {
                     return;
                 } catch (IOException e) {
-                    LOGGER.warn("RemoteListenerServer crashed", e);
+                    LOGGER.error("RemoteListenerServer crashed", e);
                 }
             }
         } finally {
@@ -129,7 +129,7 @@ public class RemoteListenerServer implements Runnable {
         try {
             serverSocket.close();
         } catch (IOException e) {
-            LOGGER.warn("Unable to close server socket", e);
+            LOGGER.error("Unable to close server socket", e);
         }
     }
 }

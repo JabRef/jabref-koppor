@@ -160,7 +160,7 @@ public class BackupManager {
             try {
                 latestBackupFileLastModifiedTime = Files.getLastModifiedTime(latestBackupPath);
             } catch (IOException e) {
-                LOGGER.debug("Could not get timestamp of backup file {}", latestBackupPath, e);
+                LOGGER.error("Could not get timestamp of backup file {}", latestBackupPath, e);
                 // If we cannot get the timestamp, we do show any warning
                 return false;
             }
@@ -168,7 +168,7 @@ public class BackupManager {
             try {
                 currentFileLastModifiedTime = Files.getLastModifiedTime(originalPath);
             } catch (IOException e) {
-                LOGGER.debug("Could not get timestamp of current file file {}", originalPath, e);
+                LOGGER.error("Could not get timestamp of current file file {}", originalPath, e);
                 // If we cannot get the timestamp, we do show any warning
                 return false;
             }
@@ -184,7 +184,7 @@ public class BackupManager {
                 }
                 return result;
             } catch (IOException e) {
-                LOGGER.debug("Could not compare original file and backup file.", e);
+                LOGGER.error("Could not compare original file and backup file.", e);
                 // User has to investigate in this case
                 return true;
             }
@@ -321,7 +321,7 @@ public class BackupManager {
         try {
             Files.createFile(path);
         } catch (IOException e) {
-            LOGGER.info("Could not create backup file {}", path, e);
+            LOGGER.error("Could not create backup file {}", path, e);
         }
     }
 

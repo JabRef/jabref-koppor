@@ -96,7 +96,7 @@ public class LibrariesQueryResource {
                     matches.add(new LibraryQueryMatch(libraryId, entry.getCitationKey().orElse(LibraryQueryMatch.UNSET_CITATION_KEY)));
                 }
             } catch (IOException e) {
-                LOGGER.warn("Could not load library {} for query", libraryId, e);
+                LOGGER.error("Could not load library {} for query", libraryId, e);
             }
         }
         return matches;

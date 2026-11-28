@@ -226,7 +226,7 @@ public class OpenOfficePanel {
                 updateButtonAvailability();
             } catch (WrappedTargetException
                      | NoSuchElementException ex) {
-                LOGGER.warn("Unable to select document to work on", ex);
+                LOGGER.error("Unable to select document to work on", ex);
                 OOError.fromMisc(ex).setTitle("Unable to select document to work on").showErrorDialog(dialogService);
             }
         });
@@ -494,7 +494,7 @@ public class OpenOfficePanel {
                 citationController.selectDocument(true);
             } catch (WrappedTargetException
                      | NoSuchElementException e) {
-                LOGGER.warn("Unable to connect to document", e);
+                LOGGER.error("Unable to connect to document", e);
                 OOError.fromMisc(e).showErrorDialog(dialogService);
                 return;
             }

@@ -100,7 +100,7 @@ public class BrowserExtensionBridgeClient {
             }
             return Optional.of(new MathSciNetOpenResult(action.asString(), tabId.asInt()));
         } catch (IOException | JacksonException | URISyntaxException e) {
-            LOGGER.warn("Could not reach browser-extension bridge for MathSciNet browser sync", e);
+            LOGGER.error("Could not reach browser-extension bridge for MathSciNet browser sync", e);
             return Optional.empty();
         } catch (InterruptedException _) {
             Thread.currentThread().interrupt();
@@ -124,7 +124,7 @@ public class BrowserExtensionBridgeClient {
             String token = Files.readString(Path.of(tokenFile.asString()), StandardCharsets.UTF_8).strip();
             return Optional.of(new Discovery(port.asInt(), token));
         } catch (IOException | JacksonException e) {
-            LOGGER.debug("Could not read browser-extension bridge discovery file {}", discoveryFile, e);
+            LOGGER.error("Could not read browser-extension bridge discovery file {}", discoveryFile, e);
             return Optional.empty();
         }
     }
