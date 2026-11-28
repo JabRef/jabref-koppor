@@ -13,6 +13,7 @@ import org.jabref.model.entry.types.StandardEntryType;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
+import org.junit.jupiter.params.provider.ValueSource;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -97,7 +98,7 @@ class RISImporterTest {
     }
 
     @ParameterizedTest
-    @CsvSource({"JOUR", "MGZN", "CONF", "THES", "RPRT", "GEN"})
+    @ValueSource(strings = {"JOUR", "MGZN", "CONF", "THES", "RPRT", "GEN"})
     void serialNumberOfOtherEntryTypesStaysIssn(String risType) throws Exception {
         BibEntry entry = importOne("""
                 TY  - %s
