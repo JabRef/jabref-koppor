@@ -2,8 +2,6 @@ package org.jabref.logic.importer.fetcher;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.MalformedURLException;
-import java.net.URISyntaxException;
 import java.util.List;
 import java.util.Optional;
 
@@ -78,7 +76,7 @@ class BibSonomyFetcherTest {
             "year=2015 OR year=2017            | search=&start=0&end=50",
             "learning AND NOT year=2015        | search=learning&start=0&end=50"
     })
-    void yearIsSentAsSystemTagOnlyIfRequired(String query, String expectedParameters) throws MalformedURLException, URISyntaxException {
+    void yearIsSentAsSystemTagOnlyIfRequired(String query, String expectedParameters) throws Exception {
         SearchQuery searchQuery = new SearchQuery(query);
         SearchQueryVisitor visitor = new SearchQueryVisitor(searchQuery.getSearchFlags());
 
@@ -88,7 +86,7 @@ class BibSonomyFetcherTest {
 
     @Test
     @ExternalServicesTest
-    void searchByQueryFindsEntry() throws FetcherException {
+    void searchByQueryFindsEntry() throws Exception {
         assumeCredentialsAvailable();
         BibEntry expected = new BibEntry(StandardEntryType.Article)
                 .withField(StandardField.AUTHOR, "Tang, Chunlei and Jia, Xing and Xiong, Yun")
@@ -111,7 +109,7 @@ class BibSonomyFetcherTest {
 
     @Test
     @ExternalServicesTest
-    void searchReturnsEntriesWithoutInternalFields() throws FetcherException {
+    void searchReturnsEntriesWithoutInternalFields() throws Exception {
         assumeCredentialsAvailable();
         List<Field> internalFields = List.of(FieldFactory.parseField("added-at"), FieldFactory.parseField("interhash"), FieldFactory.parseField("intrahash"));
 
@@ -125,14 +123,14 @@ class BibSonomyFetcherTest {
 
     @Test
     @ExternalServicesTest
-    void searchWithNonsenseQueryReturnsEmptyList() throws FetcherException {
+    void searchWithNonsenseQueryReturnsEmptyList() throws Exception {
         assumeCredentialsAvailable();
         assertEquals(List.of(), fetcher.performSearch("xqzvwplkjhgfdsa1234567890"));
     }
 
     @Test
     @ExternalServicesTest
-    void searchWithEmptyQueryReturnsEmptyList() throws FetcherException {
+    void searchWithEmptyQueryReturnsEmptyList() throws Exception {
         assumeCredentialsAvailable();
         assertEquals(List.of(), fetcher.performSearch(""));
     }
@@ -197,7 +195,7 @@ class BibSonomyFetcherTest {
     }
 
     @Test
-    void parsesAndCleansRealResponse() throws IOException, ParseException {
+    void parsesAndCleansRealResponse() throws Exception {
         BibEntry expected = new BibEntry(StandardEntryType.Misc)
                 .withCitationKey("shen2005folksonomy")
                 .withField(StandardField.ABSTRACT, "Folksonomy is an emerging technology that works to classify the information over WWW through tagging the bookmarks, photos or other web-based contents. It is understood to be organized by every user while not limited to the authors of the contents and the professional editors. This study surveyed the folksonomy as a complex network. The result indicates that the network, which is composed of the tags from the folksonomy, displays both properties of small world and scale-free. However, the statistics only shows a local and static slice of the vast body of folksonomy which is still evolving.")
@@ -213,7 +211,7 @@ class BibSonomyFetcherTest {
     }
 
     @Test
-    void movesDoiOfRealResponseFromEeField() throws IOException, ParseException {
+    void movesDoiOfRealResponseFromEeField() throws Exception {
         BibEntry expected = new BibEntry(StandardEntryType.Article)
                 .withCitationKey("journals/patterns/TangJX26")
                 .withField(StandardField.AUTHOR, "Tang, Chunlei and Jia, Xing and Xiong, Yun")
@@ -255,7 +253,7 @@ class BibSonomyFetcherTest {
     }
 
     @Test
-    void removeDuplicatePostsReducesRealResponseToOnePostPerPublication() throws IOException, ParseException {
+    void removeDuplicatePostsReducesRealResponseToOnePostPerPublication() throws Exception {
         List<BibEntry> uniquePosts = BibSonomyFetcher.removeDuplicatePosts(parseRealResponse());
 
         assertEquals(List.of(Optional.of("shen2005folksonomy"), Optional.of("journals/patterns/TangJX26")),

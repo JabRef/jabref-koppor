@@ -22,7 +22,7 @@ import static org.mockito.Mockito.verify;
 class CitationKeyResolutionTest {
 
     @Test
-    void flatteningSelectedKeysDoesNotReadOtherResolvedEntriesFields() throws RenderException {
+    void flatteningSelectedKeysDoesNotReadOtherResolvedEntriesFields() throws Exception {
         BibEntry needed = new BibEntry().withCitationKey("needed").withField(StandardField.TITLE, "Needed title");
         BibEntry untouched = spy(new BibEntry().withCitationKey("untouched").withField(StandardField.TITLE, "Untouched title"));
         CitationKeyResolution resolution = new CitationKeyResolution(request(

@@ -11,7 +11,6 @@ import org.jabref.logic.cleanup.FieldFormatterCleanup;
 import org.jabref.logic.cleanup.FieldFormatterCleanupActions;
 import org.jabref.logic.exporter.MetaDataSerializer;
 import org.jabref.logic.formatter.casechanger.LowerCaseFormatter;
-import org.jabref.logic.importer.ParseException;
 import org.jabref.logic.journals.AbbreviationType;
 import org.jabref.model.entry.BibEntryTypeBuilder;
 import org.jabref.model.entry.field.FieldProperty;
@@ -87,7 +86,7 @@ public class MetaDataParserTest {
     }
 
     @Test
-    void saveActions() throws ParseException {
+    void saveActions() throws Exception {
         Map<String, String> data = Map.of("saveActions", "enabled;title[lower_case]");
         MetaDataParser metaDataParser = new MetaDataParser(new DummyFileUpdateMonitor());
         MetaData parsed = metaDataParser.parse(new MetaData(), data, ',', "userAndHost");
@@ -99,7 +98,7 @@ public class MetaDataParserTest {
     }
 
     @Test
-    void parsesAiLibraryId() throws ParseException {
+    void parsesAiLibraryId() throws Exception {
         MetaDataParser parser = new MetaDataParser(new DummyFileUpdateMonitor());
         MetaData parsed = parser.parse(Map.of(MetaData.AI_LIBRARY_ID, "test-ai-library-id;"), ',', "userAndHost");
 
@@ -107,7 +106,7 @@ public class MetaDataParserTest {
     }
 
     @Test
-    void parsesKeywordSeparator() throws ParseException {
+    void parsesKeywordSeparator() throws Exception {
         MetaDataParser parser = new MetaDataParser(new DummyFileUpdateMonitor());
         MetaData parsed = parser.parse(Map.of(MetaData.KEYWORD_SEPARATOR, "\\;;"), ',', "userAndHost");
 
@@ -115,7 +114,7 @@ public class MetaDataParserTest {
     }
 
     @Test
-    void parsesUserSpecificBlgPathSuccessfully() throws ParseException {
+    void parsesUserSpecificBlgPathSuccessfully() throws Exception {
         String user = "testUser";
         String rawKey = "blgFilePath-" + user;
         String rawValue = "/home/user/test.blg;";
@@ -127,7 +126,7 @@ public class MetaDataParserTest {
     }
 
     @Test
-    void parsesLatexFileDirectoryForUserHostSuccessfully() throws ParseException {
+    void parsesLatexFileDirectoryForUserHostSuccessfully() throws Exception {
         String user = "testUser";
         String host = "testHost";
         String userHost = user + "-" + host;
@@ -141,7 +140,7 @@ public class MetaDataParserTest {
     }
 
     @Test
-    void parsesMultipleLatexFileDirectoriesSuccessfully() throws ParseException {
+    void parsesMultipleLatexFileDirectoriesSuccessfully() throws Exception {
         String userHost1 = "user1-host1";
         String userHost2 = "user2-host2";
 
@@ -158,7 +157,7 @@ public class MetaDataParserTest {
     }
 
     @Test
-    void libraryAbbreviationTypeRoundTrip() throws ParseException {
+    void libraryAbbreviationTypeRoundTrip() throws Exception {
         MetaData original = new MetaData();
         original.setLibraryAbbreviationType(AbbreviationType.LTWA);
 
@@ -172,7 +171,7 @@ public class MetaDataParserTest {
     }
 
     @Test
-    void parsesWindowsPathsInLatexFileDirectoryCorrectly() throws ParseException {
+    void parsesWindowsPathsInLatexFileDirectoryCorrectly() throws Exception {
         String userHost = "user-host";
         String rawKey = "fileDirectoryLatex-" + userHost;
         String rawValue = "C:\\\\Path\\\\To\\\\Latex;";

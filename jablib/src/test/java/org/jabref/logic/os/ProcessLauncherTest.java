@@ -23,7 +23,7 @@ class ProcessLauncherTest {
     }
 
     @Test
-    void outputIsDiscarded() throws IOException {
+    void outputIsDiscarded() throws Exception {
         ProcessLauncher.startDetached(processBuilder);
 
         verify(processBuilder).redirectOutput(ProcessBuilder.Redirect.DISCARD);
@@ -31,7 +31,7 @@ class ProcessLauncherTest {
     }
 
     @Test
-    void inputIsReadFromTheNullDevice() throws IOException {
+    void inputIsReadFromTheNullDevice() throws Exception {
         ProcessLauncher.startDetached(processBuilder);
 
         verify(processBuilder).redirectInput(ProcessBuilder.Redirect.from(ProcessLauncher.NULL_DEVICE.toFile()));

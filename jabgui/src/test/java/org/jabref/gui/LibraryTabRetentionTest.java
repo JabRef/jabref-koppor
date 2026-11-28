@@ -5,7 +5,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.TreeSet;
 import java.util.UUID;
-import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
 
 import javafx.beans.property.SimpleBooleanProperty;
@@ -290,7 +289,7 @@ class LibraryTabRetentionTest {
     }
 
     @Test
-    void closedTabWithRealWorkspacePreferencesIsReleased() throws BackingStoreException {
+    void closedTabWithRealWorkspacePreferencesIsReleased() throws Exception {
         Preferences preferencesNode = Preferences.userRoot().node("/org/jabref-retention-test-" + UUID.randomUUID());
         try {
             JabRefGuiPreferences realPreferences = new JabRefGuiPreferences(preferencesNode);

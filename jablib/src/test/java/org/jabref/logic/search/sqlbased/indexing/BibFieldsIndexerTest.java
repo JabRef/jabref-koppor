@@ -27,7 +27,7 @@ import static org.mockito.Mockito.when;
 
 @Execution(ExecutionMode.SAME_THREAD)
 @ResourceLock("embeddedPostgres")
-public class BibFieldsIndexerTest {
+class BibFieldsIndexerTest {
 
     private PostgresServer postgresServer;
 

@@ -71,7 +71,7 @@ class NativeDesktopTest extends JavaFxTest {
     }
 
     @Test
-    void openBrowserPassesFullUrlToCustomBrowser() throws IOException, InterruptedException {
+    void openBrowserPassesFullUrlToCustomBrowser() throws Exception {
         ExternalFileType htmlType = new CustomExternalFileType("URL", "html", "text/html", recorder.toString(), "www", IconTheme.JabRefIcons.WWW);
 
         new Windows(mock(HostServices.class), preferencesWith(htmlType), mock(ClipBoardManager.class)).openBrowser(URL_WITH_QUERY);
@@ -80,7 +80,7 @@ class NativeDesktopTest extends JavaFxTest {
     }
 
     @Test
-    void windowsOpenFileWithApplicationKeepsUrlIntact() throws IOException, InterruptedException {
+    void windowsOpenFileWithApplicationKeepsUrlIntact() throws Exception {
         // The Windows implementation is executable on POSIX, which is enough to pin down that the
         // URL is passed through verbatim instead of being run through Path.of
         new Windows(mock(HostServices.class), preferencesWith(), mock(ClipBoardManager.class)).openFileWithApplication(URL_WITH_QUERY, recorder.toString());
@@ -89,7 +89,7 @@ class NativeDesktopTest extends JavaFxTest {
     }
 
     @Test
-    void openBrowserPassesFullUrlToShowDocument() throws IOException {
+    void openBrowserPassesFullUrlToShowDocument() throws Exception {
         HostServices hostServices = mock(HostServices.class);
 
         NativeDesktop.create(hostServices, preferencesWith(), mock(ClipBoardManager.class)).openBrowser(URL_WITH_QUERY);
@@ -98,7 +98,7 @@ class NativeDesktopTest extends JavaFxTest {
     }
 
     @Test
-    void openBrowserUsesSystemHandlerForUnparseableUrl() throws IOException {
+    void openBrowserUsesSystemHandlerForUnparseableUrl() throws Exception {
         NativeDesktop desktop = spy(NativeDesktop.create(mock(HostServices.class), preferencesWith(), mock(ClipBoardManager.class)));
         doNothing().when(desktop).openUrlWithSystemHandler(anyString());
         String urlWithSpace = "https://example.org/some path?x=1&y=2";
@@ -109,7 +109,7 @@ class NativeDesktopTest extends JavaFxTest {
     }
 
     @Test
-    void openBrowserUsesSystemHandlerForMailto() throws IOException {
+    void openBrowserUsesSystemHandlerForMailto() throws Exception {
         HostServices hostServices = mock(HostServices.class);
         NativeDesktop desktop = spy(NativeDesktop.create(hostServices, preferencesWith(), mock(ClipBoardManager.class)));
         doNothing().when(desktop).openUrlWithSystemHandler(anyString());
@@ -132,7 +132,7 @@ class NativeDesktopTest extends JavaFxTest {
     }
 
     @Test
-    void openBrowserShowPopupDoesNotNotifyForTheSystemHandler() throws IOException {
+    void openBrowserShowPopupDoesNotNotifyForTheSystemHandler() throws Exception {
         DialogService dialogService = mock(DialogService.class);
         NativeDesktop desktop = spy(NativeDesktop.create(mock(HostServices.class), preferencesWith(), mock(ClipBoardManager.class)));
         doNothing().when(desktop).openUrlWithSystemHandler(anyString());

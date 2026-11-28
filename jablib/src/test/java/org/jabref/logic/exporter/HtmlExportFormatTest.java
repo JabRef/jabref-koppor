@@ -1,14 +1,10 @@
 package org.jabref.logic.exporter;
 
-import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
-
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.transform.TransformerException;
 
 import org.jabref.logic.layout.LayoutFormatterPreferences;
 import org.jabref.logic.util.StandardFileType;
@@ -66,7 +62,7 @@ public class HtmlExportFormatTest {
     }
 
     @Test
-    void emitWellFormedHtml(@TempDir Path testFolder) throws IOException, SaveException, ParserConfigurationException, TransformerException {
+    void emitWellFormedHtml(@TempDir Path testFolder) throws Exception {
         Path path = testFolder.resolve("ThisIsARandomlyNamedFile");
         exportFormat.export(databaseContext, path, entries);
         List<String> lines = Files.readAllLines(path);
@@ -75,7 +71,7 @@ public class HtmlExportFormatTest {
 
     @ParameterizedTest
     @ValueSource(strings = {"tablerefs", "tablerefsabsbib"})
-    void htmlTableShowsPageRangesWithJournalOrProceedings(String format, @TempDir Path testFolder) throws IOException {
+    void htmlTableShowsPageRangesWithJournalOrProceedings(String format, @TempDir Path testFolder) throws Exception {
         TemplateExporter tableExporter = new TemplateExporter(format,
                 format,
                 format,

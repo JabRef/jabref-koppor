@@ -1,7 +1,5 @@
 package org.jabref.logic.importer.fileformat.pdf;
 
-import java.io.IOException;
-import java.net.URISyntaxException;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Optional;
@@ -57,7 +55,7 @@ class BibliographicPageDetectorTest {
     }
 
     @Test
-    void rejectsKeimFirstPage() throws IOException, URISyntaxException {
+    void rejectsKeimFirstPage() throws Exception {
         var resource = BibliographicPageDetectorTest.class.getResource("/pdfs/PdfContentImporter/Keim2024.pdf");
         assertNotNull(resource);
         try (PDDocument document = Loader.loadPDF(Path.of(resource.toURI()).toFile())) {

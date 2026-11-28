@@ -1,7 +1,5 @@
 package org.jabref.gui.autosaveandbackup;
 
-import java.io.IOException;
-import java.net.URISyntaxException;
 import java.nio.file.DirectoryNotEmptyException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -21,7 +19,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.jabref.gui.LibraryTab;
 import org.jabref.logic.FilePreferences;
 import org.jabref.logic.importer.ImportFormatPreferences;
-import org.jabref.logic.importer.ParseException;
 import org.jabref.logic.importer.fileformat.BibtexParser;
 import org.jabref.logic.preferences.CliPreferences;
 import org.jabref.logic.util.BackupFileType;
@@ -75,13 +72,13 @@ class BackupManagerTest {
     }
 
     @Test
-    void backupFileIsEqualForNonExistingBackup() throws URISyntaxException {
+    void backupFileIsEqualForNonExistingBackup() throws Exception {
         Path originalFile = Path.of(BackupManagerTest.class.getResource("no-autosave.bib").toURI());
         assertFalse(BackupManager.backupFileDiffers(originalFile, backupDir));
     }
 
     @Test
-    void backupFileIsEqual() throws URISyntaxException, IOException {
+    void backupFileIsEqual() throws Exception {
         // Prepare test: Create backup file on "right" path
         Path source = Path.of(BackupManagerTest.class.getResource("no-changes-backup.bib").toURI());
         Path target = BackupFileUtil.getPathForNewBackupFileAndCreateDirectory(Path.of(BackupManagerTest.class.getResource("no-changes.bib").toURI()), BackupFileType.BACKUP, backupDir);
@@ -92,7 +89,7 @@ class BackupManagerTest {
     }
 
     @Test
-    void backupFileDiffers() throws URISyntaxException, IOException {
+    void backupFileDiffers() throws Exception {
         // Prepare test: Create backup file on "right" path
         Path source = Path.of(BackupManagerTest.class.getResource("changes-backup.bib").toURI());
         Path target = BackupFileUtil.getPathForNewBackupFileAndCreateDirectory(Path.of(BackupManagerTest.class.getResource("changes.bib").toURI()), BackupFileType.BACKUP, backupDir);
@@ -103,7 +100,7 @@ class BackupManagerTest {
     }
 
     @Test
-    void correctBackupFileDeterminedForMultipleBackupFiles() throws URISyntaxException, IOException {
+    void correctBackupFileDeterminedForMultipleBackupFiles() throws Exception {
         Path noChangesBib = Path.of(BackupManagerTest.class.getResource("no-changes.bib").toURI());
         Path noChangesBibBackup = Path.of(BackupManagerTest.class.getResource("no-changes-backup.bib").toURI());
 
@@ -126,7 +123,7 @@ class BackupManagerTest {
     }
 
     @Test
-    void backupFileWithNewerTimeStampLeadsToDiff() throws URISyntaxException, IOException {
+    void backupFileWithNewerTimeStampLeadsToDiff() throws Exception {
         Path changesBib = Path.of(BackupManagerTest.class.getResource("changes.bib").toURI());
         Path changesBibBackup = Path.of(BackupManagerTest.class.getResource("changes-backup.bib").toURI());
 
@@ -137,7 +134,7 @@ class BackupManagerTest {
     }
 
     @Test
-    void backupFileWithOlderTimeStampDoesNotLeadToDiff() throws URISyntaxException, IOException {
+    void backupFileWithOlderTimeStampDoesNotLeadToDiff() throws Exception {
         Path changesBib = Path.of(BackupManagerTest.class.getResource("changes.bib").toURI());
         Path changesBibBackup = Path.of(BackupManagerTest.class.getResource("changes-backup.bib").toURI());
 
@@ -151,7 +148,7 @@ class BackupManagerTest {
     }
 
     @Test
-    void latestBackupCanBeEmpty(@TempDir Path tempDir) throws IOException {
+    void latestBackupCanBeEmpty(@TempDir Path tempDir) throws Exception {
         Path originalFile = tempDir.resolve("library.bib");
         Files.writeString(originalFile, "@article{existing}");
         Path emptyBackup = BackupManager.getBackupPathForNewBackup(originalFile, backupDir);
@@ -162,7 +159,7 @@ class BackupManagerTest {
 
     /// [utest->req~jabgui.autosaveandbackup.complete-backup~1]
     @Test
-    void restoringAnEmptyBackupLeavesTheOriginalFileUnchanged(@TempDir Path tempDir) throws IOException {
+    void restoringAnEmptyBackupLeavesTheOriginalFileUnchanged(@TempDir Path tempDir) throws Exception {
         Path originalFile = tempDir.resolve("library.bib");
         Files.writeString(originalFile, "@article{existing}");
         Path emptyBackup = BackupManager.getBackupPathForNewBackup(originalFile, backupDir);
@@ -181,7 +178,7 @@ class BackupManagerTest {
     }
 
     @Test
-    void failedRestoreIncludesTheCause(@TempDir Path tempDir) throws IOException {
+    void failedRestoreIncludesTheCause(@TempDir Path tempDir) throws Exception {
         Path originalFile = tempDir.resolve("library.bib");
         Files.createDirectory(originalFile);
         Files.writeString(originalFile.resolve("existing-file"), "existing content");
@@ -198,7 +195,7 @@ class BackupManagerTest {
     /// [utest->req~jabgui.autosaveandbackup.backup-every-edit~1]
     @ParameterizedTest
     @ValueSource(strings = {"", "A"})
-    void typingIntoNewOrExistingFieldIsBackedUp(String initialValue, @TempDir Path tempDir) throws IOException, ParseException {
+    void typingIntoNewOrExistingFieldIsBackedUp(String initialValue, @TempDir Path tempDir) throws Exception {
         BibEntry entry = new BibEntry(StandardEntryType.Article).withCitationKey("entry").withField(StandardField.EDITOR, initialValue);
         BibDatabaseContext context = new BibDatabaseContext(new BibDatabase(List.of(entry)));
         Path originalFile = tempDir.resolve("library.bib");
@@ -236,7 +233,7 @@ class BackupManagerTest {
 
     /// [utest->req~jabgui.autosaveandbackup.preserve-pending-edits~1]
     @Test
-    void editAfterSnapshotIsIncludedInNextBackup(@TempDir Path tempDir) throws IOException, ParseException {
+    void editAfterSnapshotIsIncludedInNextBackup(@TempDir Path tempDir) throws Exception {
         BibEntry entry = new BibEntry(StandardEntryType.Article).withCitationKey("entry");
         BibDatabaseContext context = new BibDatabaseContext(new BibDatabase(List.of(entry)));
         context.setDatabasePath(tempDir.resolve("library.bib"));
@@ -274,7 +271,7 @@ class BackupManagerTest {
 
     /// [utest->req~jabgui.autosaveandbackup.preserve-pending-edits~1]
     @Test
-    void failedBackupCommitLeavesEditsPending(@TempDir Path tempDir) throws IOException, ParseException {
+    void failedBackupCommitLeavesEditsPending(@TempDir Path tempDir) throws Exception {
         BibEntry entry = new BibEntry(StandardEntryType.Article).withCitationKey("entry");
         BibDatabaseContext context = new BibDatabaseContext(new BibDatabase(List.of(entry)));
         context.setDatabasePath(tempDir.resolve("library.bib"));
@@ -373,7 +370,7 @@ class BackupManagerTest {
     }
 
     @Test
-    void shouldNotCreateABackup(@TempDir Path customDir) throws IOException {
+    void shouldNotCreateABackup(@TempDir Path customDir) throws Exception {
         Path backupDir = customDir.resolve("subBackupDir");
         Files.createDirectories(backupDir);
 
@@ -401,7 +398,7 @@ class BackupManagerTest {
     }
 
     @Test
-    void shouldCreateABackup(@TempDir Path customDir) throws IOException {
+    void shouldCreateABackup(@TempDir Path customDir) throws Exception {
         Path backupDir = customDir.resolve("subBackupDir");
         Files.createDirectories(backupDir);
 

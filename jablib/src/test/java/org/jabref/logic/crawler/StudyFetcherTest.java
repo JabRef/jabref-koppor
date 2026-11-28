@@ -3,7 +3,6 @@ package org.jabref.logic.crawler;
 import java.util.List;
 import java.util.Map;
 
-import org.jabref.logic.importer.FetcherException;
 import org.jabref.logic.importer.PagedSearchBasedFetcher;
 import org.jabref.logic.importer.SearchBasedFetcher;
 import org.jabref.model.entry.BibEntry;
@@ -29,7 +28,7 @@ import static org.mockito.Mockito.when;
 class StudyFetcherTest {
 
     @Test
-    void catalogSpecificOverrideUsesRawPathForPagedFetcher() throws FetcherException {
+    void catalogSpecificOverrideUsesRawPathForPagedFetcher() throws Exception {
         StudyQuery studyQuery = new StudyQuery("machine learning");
         studyQuery.setCatalogSpecific(Map.of("TestPagedFetcher", "native:query"));
 
@@ -51,7 +50,7 @@ class StudyFetcherTest {
     }
 
     @Test
-    void catalogSpecificOverrideUsesRawPathForPlainFetcher() throws FetcherException {
+    void catalogSpecificOverrideUsesRawPathForPlainFetcher() throws Exception {
         StudyQuery studyQuery = new StudyQuery("machine learning");
         studyQuery.setCatalogSpecific(Map.of("TestPlainFetcher", "native:query"));
 
@@ -68,7 +67,7 @@ class StudyFetcherTest {
     }
 
     @Test
-    void noOverrideFallsBackToStandardPath() throws FetcherException {
+    void noOverrideFallsBackToStandardPath() throws Exception {
         StudyQuery studyQuery = new StudyQuery("machine learning");
 
         PagedSearchBasedFetcher pagedFetcher = mock(PagedSearchBasedFetcher.class);
@@ -87,7 +86,7 @@ class StudyFetcherTest {
     }
 
     @Test
-    void caseInsensitiveOverrideMatchesFetcher() throws FetcherException {
+    void caseInsensitiveOverrideMatchesFetcher() throws Exception {
         StudyQuery studyQuery = new StudyQuery("machine learning");
         studyQuery.setCatalogSpecific(Map.of("ieeexplore", "native:query"));
 
@@ -107,7 +106,7 @@ class StudyFetcherTest {
     }
 
     @Test
-    void unsupportedOperationOnRawPathOmitsFetcherFromResults() throws FetcherException {
+    void unsupportedOperationOnRawPathOmitsFetcherFromResults() throws Exception {
         StudyQuery studyQuery = new StudyQuery("machine learning");
         studyQuery.setCatalogSpecific(Map.of("TestPagedFetcher", "native:query"));
 

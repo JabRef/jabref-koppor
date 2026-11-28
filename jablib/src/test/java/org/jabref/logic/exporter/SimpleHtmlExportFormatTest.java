@@ -1,12 +1,8 @@
 package org.jabref.logic.exporter;
 
-import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
-
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.transform.TransformerException;
 
 import org.jabref.logic.layout.LayoutFormatterPreferences;
 import org.jabref.logic.util.StandardFileType;
@@ -39,7 +35,7 @@ class SimpleHtmlExportFormatTest {
             SaveOrder.getDefaultSaveOrder());
 
     @Test
-    void authorFirstNamesAreExportedAsInitials(@TempDir Path testFolder) throws IOException, SaveException, ParserConfigurationException, TransformerException {
+    void authorFirstNamesAreExportedAsInitials(@TempDir Path testFolder) throws Exception {
         BibEntry entry = new BibEntry()
                 .withCitationKey("mykey")
                 .withField(StandardField.AUTHOR, "Kolb, Stefan Anton")

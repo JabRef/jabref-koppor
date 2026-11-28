@@ -1,7 +1,5 @@
 package org.jabref.logic.importer.fileformat.pdf;
 
-import java.io.IOException;
-import java.net.URISyntaxException;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
@@ -256,7 +254,7 @@ class PdfMergeMetadataImporterOfflineTest {
     }
 
     @Test
-    void wordProducedPdfDoesNotGetCreatorAccountAsAuthor(@TempDir Path tempDir) throws IOException {
+    void wordProducedPdfDoesNotGetCreatorAccountAsAuthor(@TempDir Path tempDir) throws Exception {
         Path file = tempDir.resolve("word-export.pdf");
         try (PDDocument document = new PDDocument()) {
             PDPage page = new PDPage();
@@ -291,7 +289,7 @@ class PdfMergeMetadataImporterOfflineTest {
     }
 
     @Test
-    void realPdfBylineReplacesUnconfirmedCreatorAuthor() throws IOException, URISyntaxException {
+    void realPdfBylineReplacesUnconfirmedCreatorAuthor() throws Exception {
         Path file = Path.of(PdfMergeMetadataImporterOfflineTest.class.getResource("/pdfs/PdfContentImporter/Bogner2019.pdf").toURI());
         BibEntry documentInformation = new BibEntry().withField(StandardField.AUTHOR, "Void, Eve");
         BibEntry content = new BibEntry().withField(StandardField.AUTHOR, "Bogner, Justus and Wagner, Stefan and Zimmermann, Alfred");
@@ -307,7 +305,7 @@ class PdfMergeMetadataImporterOfflineTest {
     /// arXiv's XMP joins the authors with U+2C20 and a byte order mark instead of " and "; the byline prints the
     /// family names glued to affiliation markers ("Riccaa,∗"), so only the given names confirm the value
     @Test
-    void realPdfXmpAuthorWithBrokenSeparatorsIsKept() throws IOException, URISyntaxException {
+    void realPdfXmpAuthorWithBrokenSeparatorsIsKept() throws Exception {
         Path file = Path.of(PdfMergeMetadataImporterOfflineTest.class.getResource("/pdfs/test-arxivMetadata.pdf").toURI());
         XmpPreferences xmpPreferences = mock(XmpPreferences.class, Answers.RETURNS_DEEP_STUBS);
 

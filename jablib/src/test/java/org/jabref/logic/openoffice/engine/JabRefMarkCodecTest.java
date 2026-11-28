@@ -29,7 +29,7 @@ class JabRefMarkCodecTest {
             "AUTHOR_ONLY, AUTHOR_ONLY",
             "YEAR_ONLY, YEAR_ONLY"
     })
-    void encodesExistingCitationTypesWithoutNumbers(CitationType citationType, String wireType) throws JabRefMarkCodecException {
+    void encodesExistingCitationTypesWithoutNumbers(CitationType citationType, String wireType) throws Exception {
         JabRefMarkData mark = new JabRefMarkData(List.of("Smith2020", "Doe2021"), "stable-uid_1", citationType);
 
         assertEquals("JABREF_Smith2020, JABREF_Doe2021 " + wireType + " stable-uid_1", JabRefMarkCodec.encode(mark));
@@ -44,14 +44,14 @@ class JabRefMarkCodecTest {
             "AUTHOR_ONLY, AUTHOR_ONLY",
             "YEAR_ONLY, YEAR_ONLY"
     })
-    void decodesEveryWireTypeToExistingEnum(String wireType, CitationType citationType) throws JabRefMarkCodecException {
+    void decodesEveryWireTypeToExistingEnum(String wireType, CitationType citationType) throws Exception {
         assertEquals(new JabRefMarkData(List.of("key"), "uid", citationType),
                 JabRefMarkCodec.decode("JABREF_key " + wireType + " uid"));
     }
 
     @ParameterizedTest
     @EnumSource(CitationType.class)
-    void roundTripsEveryCitationType(CitationType citationType) throws JabRefMarkCodecException {
+    void roundTripsEveryCitationType(CitationType citationType) throws Exception {
         JabRefMarkData mark = new JabRefMarkData(List.of("β2020:一/2–3—4.foo+bar?{x}", "JABREF_literal", "NORMAL", "IN_TEXT", "β2020:一/2–3—4.foo+bar?{x}"),
                 "b7140475-b2b2-4b4a-a963-666463d650c3", citationType);
 
@@ -60,7 +60,7 @@ class JabRefMarkCodecTest {
 
     @ParameterizedTest
     @ValueSource(strings = {"uid", "native_User-17", "b7140475-b2b2-4b4a-a963-666463d650c3", "1234567890", "NORMAL", "IN_TEXT", "EMPTY", "NOPAR", "AUTHOR_ONLY", "YEAR_ONLY"})
-    void preservesOpaqueIdentifiersWithoutGeneratorSpecificParsing(String uid) throws JabRefMarkCodecException {
+    void preservesOpaqueIdentifiersWithoutGeneratorSpecificParsing(String uid) throws Exception {
         JabRefMarkData data = new JabRefMarkData(List.of("key"), uid, CitationType.AUTHORYEAR_PAR);
 
         assertEquals(data, JabRefMarkCodec.decode(JabRefMarkCodec.encode(data)));
@@ -68,13 +68,13 @@ class JabRefMarkCodecTest {
 
     @ParameterizedTest
     @ValueSource(strings = {"NORMAL", "IN_TEXT", "EMPTY", "NOPAR", "AUTHOR_ONLY", "YEAR_ONLY"})
-    void decodesTypeLookingIdentifiersOnlyFromTheFinalToken(String uid) throws JabRefMarkCodecException {
+    void decodesTypeLookingIdentifiersOnlyFromTheFinalToken(String uid) throws Exception {
         assertEquals(new JabRefMarkData(List.of("NORMAL", "IN_TEXT"), uid, CitationType.INVISIBLE_CIT),
                 JabRefMarkCodec.decode("JABREF_NORMAL, JABREF_IN_TEXT EMPTY " + uid));
     }
 
     @Test
-    void preservesStorageOrderAndRepeatedKeys() throws JabRefMarkCodecException {
+    void preservesStorageOrderAndRepeatedKeys() throws Exception {
         assertEquals(List.of("z", "a", "z"), JabRefMarkCodec.decode("JABREF_z, JABREF_a, JABREF_z NORMAL uid").citationKeys());
     }
 
@@ -136,7 +136,7 @@ class JabRefMarkCodecTest {
 
     @ParameterizedTest
     @EnumSource(CitationType.class)
-    void recognizesCanonicalNames(CitationType citationType) throws JabRefMarkCodecException {
+    void recognizesCanonicalNames(CitationType citationType) throws Exception {
         JabRefMarkData mark = new JabRefMarkData(List.of("key"), "uid", citationType);
 
         assertTrue(JabRefMarkCodec.isCanonicalMarkName(JabRefMarkCodec.encode(mark)));
@@ -170,7 +170,7 @@ class JabRefMarkCodecTest {
     }
 
     @Test
-    void copiesInputKeys() throws JabRefMarkCodecException {
+    void copiesInputKeys() throws Exception {
         List<String> keys = new ArrayList<>(List.of("original"));
         JabRefMarkData mark = new JabRefMarkData(keys, "uid", CitationType.AUTHORYEAR_PAR);
         keys.set(0, "replacement");
@@ -179,14 +179,14 @@ class JabRefMarkCodecTest {
     }
 
     @Test
-    void exposesImmutableKeys() throws JabRefMarkCodecException {
+    void exposesImmutableKeys() throws Exception {
         JabRefMarkData mark = JabRefMarkCodec.decode("JABREF_key NORMAL uid");
 
         assertThrows(UnsupportedOperationException.class, () -> mark.citationKeys().add("other"));
     }
 
     @Test
-    void equalDataHasEqualHashCode() throws JabRefMarkCodecException {
+    void equalDataHasEqualHashCode() throws Exception {
         JabRefMarkData mark = new JabRefMarkData(List.of("key"), "uid", CitationType.AUTHORYEAR_PAR);
 
         assertEquals(mark.hashCode(), JabRefMarkCodec.decode(JabRefMarkCodec.encode(mark)).hashCode());

@@ -127,6 +127,8 @@ class StyleSelectDialogViewTest {
                 }
             });
         }
+        cslDiscovery.closeOnDemand();
+        bstPreviews.closeOnDemand();
     }
 
     @ParameterizedTest

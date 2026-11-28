@@ -37,7 +37,7 @@ import static org.mockito.Mockito.when;
 
 @Execution(ExecutionMode.SAME_THREAD)
 @ResourceLock("git")
-public class SemanticMergeAnalyzerTest {
+class SemanticMergeAnalyzerTest {
     @ParameterizedTest
     @MethodSource
     void semanticEntryLevelConflicts(String description,
@@ -61,7 +61,7 @@ public class SemanticMergeAnalyzerTest {
     }
 
     @Test
-    void noConflictWhenOnlyLineEndingsDiffer() throws JabRefException {
+    void noConflictWhenOnlyLineEndingsDiffer() throws Exception {
         String lf = "@article{a,\n  comment = {line1\n\nline3\n\nline5},\n}\n";
         String crlf = lf.replace("\n", "\r\n");
 

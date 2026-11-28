@@ -202,7 +202,7 @@ class StyleSelectDialogViewModelTest {
         }
 
         @Test
-        void externalCslIsRegisteredSelectedAndReloadedFromLoaderPreferences() throws IOException {
+        void externalCslIsRegisteredSelectedAndReloadedFromLoaderPreferences() throws Exception {
             Path path = writeCslStyle("imported.csl", "External import regression style", "Import regression");
             when(dialogService.showFileOpenDialog(any())).thenReturn(Optional.of(path));
             JStyle jStyleSelection = viewModel.selectedJStyleProperty().get().getJStyle();
@@ -232,7 +232,7 @@ class StyleSelectDialogViewModelTest {
         }
 
         @Test
-        void externalJStyleSelectsAbsolutePathAndDefersCurrentStyleUntilPreferencesAreStored() throws IOException {
+        void externalJStyleSelectsAbsolutePathAndDefersCurrentStyleUntilPreferencesAreStored() throws Exception {
             Path path = writeJStyle();
             when(dialogService.showFileOpenDialog(any())).thenReturn(Optional.of(path));
             OOStyle currentStyle = openOfficePreferences.getCurrentStyle();
@@ -257,7 +257,7 @@ class StyleSelectDialogViewModelTest {
         }
 
         @Test
-        void externalBstSelectsAbsolutePathAndStoresCurrentStyleImmediately() throws IOException {
+        void externalBstSelectsAbsolutePathAndStoresCurrentStyleImmediately() throws Exception {
             Path path = Files.writeString(directory.resolve("imported.BST"), "READ");
             when(dialogService.showFileOpenDialog(any())).thenReturn(Optional.of(path));
             CitationStyle cslSelection = viewModel.selectedCslLayoutProperty().get().citationStyle();
@@ -281,7 +281,7 @@ class StyleSelectDialogViewModelTest {
 
         @ParameterizedTest
         @EnumSource(value = StandardFileType.class, names = {"CITATION_STYLE", "JSTYLE", "BST"})
-        void acceptingStaleDialogDoesNotDiscardAStyleRegisteredByAnotherDialog(StandardFileType fileType) throws IOException {
+        void acceptingStaleDialogDoesNotDiscardAStyleRegisteredByAnotherDialog(StandardFileType fileType) throws Exception {
             StyleSelectDialogViewModel staleDialog = viewModel;
             viewModel = createViewModel(cslStyleLoader);
             OOStyle imported = addExternalStyle(fileType);
@@ -295,7 +295,7 @@ class StyleSelectDialogViewModelTest {
 
         @ParameterizedTest
         @EnumSource(value = StandardFileType.class, names = {"CITATION_STYLE", "JSTYLE", "BST"})
-        void acceptingStaleDialogDoesNotRegisterAStyleRemovedFromItsLoader(StandardFileType fileType) throws IOException {
+        void acceptingStaleDialogDoesNotRegisterAStyleRemovedFromItsLoader(StandardFileType fileType) throws Exception {
             OOStyle imported = addExternalStyle(fileType);
             boolean removed = switch (imported) {
                 case CitationStyle cslStyle ->
@@ -317,7 +317,7 @@ class StyleSelectDialogViewModelTest {
 
         @ParameterizedTest
         @EnumSource(value = StandardFileType.class, names = {"CITATION_STYLE", "JSTYLE", "BST"})
-        void invalidStyleDoesNotMutateOrFallBackToAnotherStyle(StandardFileType fileType) throws IOException {
+        void invalidStyleDoesNotMutateOrFallBackToAnotherStyle(StandardFileType fileType) throws Exception {
             Path path = Files.writeString(directory.resolve("invalid." + fileType.getExtensions().getFirst()), "}");
             when(dialogService.showFileOpenDialog(any())).thenReturn(Optional.of(path));
             ImportState before = state();
@@ -349,7 +349,7 @@ class StyleSelectDialogViewModelTest {
                 "External import regression style, Different short title",
                 "Different external title, Import regression"
         })
-        void duplicateCslTitleOrShortTitleDoesNotChangeSelection(String title, String shortTitle) throws IOException {
+        void duplicateCslTitleOrShortTitleDoesNotChangeSelection(String title, String shortTitle) throws Exception {
             CitationStylePreviewLayout previousSelection = viewModel.selectedCslLayoutProperty().get();
             when(dialogService.showFileOpenDialog(any())).thenReturn(Optional.of(
                     writeCslStyle("original.csl", "External import regression style", "Import regression")));
@@ -366,7 +366,7 @@ class StyleSelectDialogViewModelTest {
         }
 
         @Test
-        void duplicateJStylePathDoesNotChangeSelection() throws IOException {
+        void duplicateJStylePathDoesNotChangeSelection() throws Exception {
             JStyleSelectViewModel previousSelection = viewModel.selectedJStyleProperty().get();
             when(dialogService.showFileOpenDialog(any())).thenReturn(Optional.of(writeJStyle()));
             viewModel.addJStyleFile();
@@ -382,7 +382,7 @@ class StyleSelectDialogViewModelTest {
         }
 
         @Test
-        void duplicateBstFilenameDoesNotChangeSelection() throws IOException {
+        void duplicateBstFilenameDoesNotChangeSelection() throws Exception {
             when(dialogService.showFileOpenDialog(any())).thenReturn(Optional.of(
                     Files.writeString(directory.resolve("IEEEtran.bst"), "READ")));
             ImportState before = state();
@@ -396,7 +396,7 @@ class StyleSelectDialogViewModelTest {
 
         @ParameterizedTest
         @EnumSource(value = StandardFileType.class, names = {"CITATION_STYLE", "JSTYLE", "BST"})
-        void cancelledRemovalPreservesRegistryRowsSelectionsPreferencesAndFile(StandardFileType fileType) throws IOException {
+        void cancelledRemovalPreservesRegistryRowsSelectionsPreferencesAndFile(StandardFileType fileType) throws Exception {
             OOStyle style = addExternalStyle(fileType);
             openOfficePreferences.setCurrentStyle(style);
             ImportState before = state();
@@ -428,7 +428,7 @@ class StyleSelectDialogViewModelTest {
 
         @ParameterizedTest
         @EnumSource(value = StandardFileType.class, names = {"CITATION_STYLE", "JSTYLE", "BST"})
-        void refusedRemovalPreservesRegistryRowsSelectionsPreferencesAndFile(StandardFileType fileType) throws IOException {
+        void refusedRemovalPreservesRegistryRowsSelectionsPreferencesAndFile(StandardFileType fileType) throws Exception {
             OOStyle style = addExternalStyle(fileType);
             openOfficePreferences.setCurrentStyle(style);
             when(dialogService.showConfirmationDialogAndWait(anyString(), anyString(), anyString(), anyString())).thenReturn(true);
@@ -468,7 +468,7 @@ class StyleSelectDialogViewModelTest {
                 "BST, false, false"
         })
         void successfulRemovalRepairsOnlyAffectedSelectionAndCurrentPreference(StandardFileType fileType,
-                                                                               boolean selected, boolean applied) throws IOException {
+                                                                               boolean selected, boolean applied) throws Exception {
             OOStyle previousSelection = selectedStyle(fileType).orElseThrow();
             OOStyle style = addExternalStyle(fileType);
             if (!selected) {
@@ -511,7 +511,7 @@ class StyleSelectDialogViewModelTest {
         }
 
         @Test
-        void removingJStyleRepairsAppliedPathEvenIfItsParsedContentDiffers() throws IOException {
+        void removingJStyleRepairsAppliedPathEvenIfItsParsedContentDiffers() throws Exception {
             JStyle style = (JStyle) addExternalStyle(StandardFileType.JSTYLE);
             Path path = Path.of(style.getPath());
             String source = Files.readString(path).replace("External import regression style", "Updated applied style");
@@ -529,7 +529,7 @@ class StyleSelectDialogViewModelTest {
 
         @ParameterizedTest
         @EnumSource(value = StandardFileType.class, names = {"CITATION_STYLE", "JSTYLE", "BST"})
-        void removingAnAlreadyRemovedStyleDoesNotChangeStateOrPromptAgain(StandardFileType fileType) throws IOException {
+        void removingAnAlreadyRemovedStyleDoesNotChangeStateOrPromptAgain(StandardFileType fileType) throws Exception {
             OOStyle style = addExternalStyle(fileType);
             when(dialogService.showConfirmationDialogAndWait(anyString(), anyString(), anyString(), anyString())).thenReturn(true);
             deleteStyle(style);
@@ -554,7 +554,7 @@ class StyleSelectDialogViewModelTest {
                 "BST, true",
                 "BST, false"
         })
-        void removingLastRowClearsSelectionAndRepairsOnlyTheDeletedCurrentStyle(StandardFileType fileType, boolean applied) throws IOException {
+        void removingLastRowClearsSelectionAndRepairsOnlyTheDeletedCurrentStyle(StandardFileType fileType, boolean applied) throws Exception {
             OOStyle style = addExternalStyle(fileType);
             CitationStyle fallback = CSLStyleLoader.getDefaultStyle();
             OOStyle unrelatedStyle = fileType == StandardFileType.CITATION_STYLE
@@ -592,7 +592,7 @@ class StyleSelectDialogViewModelTest {
         }
 
         @Test
-        void cslRemovalUsesUnfilteredRowsAndKeepsTheFilter() throws IOException {
+        void cslRemovalUsesUnfilteredRowsAndKeepsTheFilter() throws Exception {
             CitationStyle style = (CitationStyle) addExternalStyle(StandardFileType.CITATION_STYLE);
             CitationStyle firstRemaining = CSLStyleLoader.getStyles().getFirst();
             viewModel.setAvailableCslLayoutsFilter(style.getTitle());
@@ -609,7 +609,7 @@ class StyleSelectDialogViewModelTest {
         }
 
         @Test
-        void hiddenCslStyleCanBeRemovedWithoutChangingAnotherSelection() throws IOException {
+        void hiddenCslStyleCanBeRemovedWithoutChangingAnotherSelection() throws Exception {
             CitationStyle style = (CitationStyle) addExternalStyle(StandardFileType.CITATION_STYLE);
             List<CitationStyle> remaining = CSLStyleLoader.getStyles().stream().filter(existing -> !existing.equals(style)).toList();
             CitationStyle visibleStyle = CSLStyleLoader.getStyles().getFirst();

@@ -1,7 +1,5 @@
 package org.jabref.logic.importer.fileformat.pdf;
 
-import java.io.IOException;
-import java.net.URISyntaxException;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Objects;
@@ -32,14 +30,14 @@ class PdfContentPartialImporterTest {
     private final PdfContentImporter importer = new PdfContentImporter();
 
     @Test
-    void doesNotHandleEncryptedPdfs() throws URISyntaxException {
+    void doesNotHandleEncryptedPdfs() throws Exception {
         Path file = Path.of(PdfContentImporter.class.getResource("/pdfs/encrypted.pdf").toURI());
         List<BibEntry> result = importer.importDatabase(file).getDatabase().getEntries();
         assertEquals(List.of(), result);
     }
 
     @Test
-    void importTwiceWorksAsExpected() throws URISyntaxException {
+    void importTwiceWorksAsExpected() throws Exception {
         Path file = Path.of(PdfContentImporter.class.getResource("/pdfs/minimal.pdf").toURI());
         List<BibEntry> result = importer.importDatabase(file).getDatabase().getEntries();
 
@@ -282,7 +280,7 @@ class PdfContentPartialImporterTest {
 
     @ParameterizedTest
     @MethodSource("providePdfData")
-    void pdfTitleExtraction(String expectedTitle, String filePath) throws URISyntaxException {
+    void pdfTitleExtraction(String expectedTitle, String filePath) throws Exception {
         Path file = Path.of(Objects.requireNonNull(PdfContentImporter.class.getResource(filePath)).toURI());
         List<BibEntry> result = importer.importDatabase(file).getDatabase().getEntries();
         assertEquals(Optional.of(expectedTitle), result.getFirst().getTitle());
@@ -311,7 +309,7 @@ class PdfContentPartialImporterTest {
     /// as separate strings pulled tighter (positive values move left). The kern must not be read as
     /// a word boundary, and the same-font-size label on page two must not be glued onto the title.
     @Test
-    void pdfTitleExtractionIgnoresKerningAndTextOfFollowingPages(@TempDir Path tempDir) throws IOException {
+    void pdfTitleExtractionIgnoresKerningAndTextOfFollowingPages(@TempDir Path tempDir) throws Exception {
         Path file = tempDir.resolve("kerned-title.pdf");
         try (PDDocument document = new PDDocument()) {
             PDFont titleFont = new PDType1Font(Standard14Fonts.FontName.HELVETICA_BOLD);

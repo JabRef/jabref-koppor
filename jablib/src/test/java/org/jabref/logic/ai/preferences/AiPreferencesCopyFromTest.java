@@ -37,7 +37,7 @@ class AiPreferencesCopyFromTest {
     }
 
     @Test
-    void copyFromCopiesEveryProperty() throws IllegalAccessException {
+    void copyFromCopiesEveryProperty() throws Exception {
         AiPreferences source = AiPreferences.getDefault();
         AiPreferences target = AiPreferences.getDefault();
 
@@ -63,7 +63,7 @@ class AiPreferencesCopyFromTest {
     }
 
     @Test
-    void copyFromLeavesInitialEnabledStateAlone() throws IllegalAccessException {
+    void copyFromLeavesInitialEnabledStateAlone() throws Exception {
         AiPreferences source = AiPreferences.getDefault();
         AiPreferences target = AiPreferences.getDefault();
 

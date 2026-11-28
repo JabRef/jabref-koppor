@@ -206,7 +206,7 @@ class JStyleLoaderTest {
     }
 
     @Test
-    void addExternalStyleRegistersParsedStyleAndPersistsOnce() throws IOException {
+    void addExternalStyleRegistersParsedStyleAndPersistsOnce() throws Exception {
         loader = new JStyleLoader(preferences, layoutPreferences, abbreviationRepository);
         JStyle style = new JStyle(jStyleFile, layoutPreferences, abbreviationRepository);
         Files.delete(jStyleFile);
@@ -231,7 +231,7 @@ class JStyleLoaderTest {
     }
 
     @Test
-    void addExternalStyleRejectsInvalidStyleWithoutPersisting() throws IOException {
+    void addExternalStyleRejectsInvalidStyleWithoutPersisting() throws Exception {
         Files.writeString(jStyleFile, "Not a JStyle");
         JStyle style = new JStyle(jStyleFile, layoutPreferences, abbreviationRepository);
         loader = new JStyleLoader(preferences, layoutPreferences, abbreviationRepository);
@@ -244,7 +244,7 @@ class JStyleLoaderTest {
     }
 
     @Test
-    void addStyleIfValidRejectsInvalidContentWithoutPersisting() throws IOException {
+    void addStyleIfValidRejectsInvalidContentWithoutPersisting() throws Exception {
         Files.writeString(jStyleFile, "Not a JStyle");
         loader = new JStyleLoader(preferences, layoutPreferences, abbreviationRepository);
         List<JStyle> beforeAdding = loader.getStyles();
@@ -256,7 +256,7 @@ class JStyleLoaderTest {
     }
 
     @Test
-    void addExternalStyleRejectsEqualStyleWithoutPersistingAgain() throws IOException {
+    void addExternalStyleRejectsEqualStyleWithoutPersistingAgain() throws Exception {
         loader = new JStyleLoader(preferences, layoutPreferences, abbreviationRepository);
         JStyle style = new JStyle(jStyleFile, layoutPreferences, abbreviationRepository);
         JStyle duplicate = new JStyle(jStyleFile, layoutPreferences, abbreviationRepository);
@@ -272,7 +272,7 @@ class JStyleLoaderTest {
     }
 
     @Test
-    void addExternalStyleAcceptsSameNameAtDifferentPaths() throws IOException {
+    void addExternalStyleAcceptsSameNameAtDifferentPaths() throws Exception {
         Path otherFile = Files.copy(jStyleFile, styleFolder.resolve("other.jstyle"));
         JStyle style = new JStyle(jStyleFile, layoutPreferences, abbreviationRepository);
         JStyle otherStyle = new JStyle(otherFile, layoutPreferences, abbreviationRepository);
@@ -291,7 +291,7 @@ class JStyleLoaderTest {
     }
 
     @Test
-    void addExternalStyleAcceptsDifferentPropertiesAtSamePath() throws IOException {
+    void addExternalStyleAcceptsDifferentPropertiesAtSamePath() throws Exception {
         JStyle style = new JStyle(jStyleFile, layoutPreferences, abbreviationRepository);
         JStyle changedStyle = new JStyle(jStyleFile, layoutPreferences, abbreviationRepository);
         changedStyle.getCitProperties().put("BibTeXKeyCitations", true);
@@ -308,7 +308,7 @@ class JStyleLoaderTest {
     }
 
     @Test
-    void removeUnregisteredStyleDoesNotPersist() throws IOException {
+    void removeUnregisteredStyleDoesNotPersist() throws Exception {
         loader = new JStyleLoader(preferences, layoutPreferences, abbreviationRepository);
         List<JStyle> beforeRemoving = loader.getStyles();
         JStyle style = new JStyle(jStyleFile, layoutPreferences, abbreviationRepository);
@@ -346,7 +346,7 @@ class JStyleLoaderTest {
     }
 
     @Test
-    void getStylesSnapshotDoesNotChangeAfterAddingStyle() throws IOException {
+    void getStylesSnapshotDoesNotChangeAfterAddingStyle() throws Exception {
         loader = new JStyleLoader(preferences, layoutPreferences, abbreviationRepository);
         List<JStyle> styles = loader.getStyles();
         JStyle style = new JStyle(jStyleFile, layoutPreferences, abbreviationRepository);

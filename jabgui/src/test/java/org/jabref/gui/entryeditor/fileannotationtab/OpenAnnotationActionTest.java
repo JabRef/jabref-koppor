@@ -79,14 +79,14 @@ class OpenAnnotationActionTest {
 
     /// The reader is started detached, so that no pipe to it stays open
     @Test
-    void readerIsStartedDetached() throws IOException {
+    void readerIsStartedDetached() throws Exception {
         action().openAtAnnotation(PDF_FILE, annotationOnPage(PAGE), processBuilder);
 
         verify(processBuilder).redirectInput(any(ProcessBuilder.Redirect.class));
     }
 
     @Test
-    void readerThatCannotBeStartedIsReportedToTheUser() throws IOException {
+    void readerThatCannotBeStartedIsReportedToTheUser() throws Exception {
         when(processBuilder.start()).thenThrow(new IOException("no such executable"));
 
         action().openAtAnnotation(PDF_FILE, annotationOnPage(PAGE), processBuilder);
@@ -97,7 +97,7 @@ class OpenAnnotationActionTest {
     }
 
     @Test
-    void readerThatCannotBeToldAPageOpensTheFileWithoutPage() throws IOException {
+    void readerThatCannotBeToldAPageOpensTheFileWithoutPage() throws Exception {
         ExternalFileType pdfType = mock(ExternalFileType.class);
         when(pdfType.getExtension()).thenReturn("pdf");
         when(pdfType.getOpenWithApplication()).thenReturn(READER_WITHOUT_PAGE_SUPPORT.toString());

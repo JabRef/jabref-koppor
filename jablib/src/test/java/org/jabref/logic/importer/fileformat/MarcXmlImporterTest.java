@@ -1,6 +1,5 @@
 package org.jabref.logic.importer.fileformat;
 
-import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
@@ -34,7 +33,7 @@ class MarcXmlImporterTest {
     private final MarcXmlImporter importer = new MarcXmlImporter();
 
     @Test
-    void importsStandaloneRecordFromString() throws IOException {
+    void importsStandaloneRecordFromString() throws Exception {
         assertTrue(importer.isRecognizedFormat(RECORD));
         List<BibEntry> entries = importer.importDatabase(RECORD).getDatabase().getEntries();
         assertEquals(1, entries.size());
@@ -42,7 +41,7 @@ class MarcXmlImporterTest {
     }
 
     @Test
-    void importsStandaloneRecordFromFile(@TempDir Path directory) throws IOException {
+    void importsStandaloneRecordFromFile(@TempDir Path directory) throws Exception {
         Path file = directory.resolve("book.xml");
         Files.writeString(file, RECORD);
 
@@ -53,7 +52,7 @@ class MarcXmlImporterTest {
     }
 
     @Test
-    void importsMultipleRecordsFromCollection() throws IOException {
+    void importsMultipleRecordsFromCollection() throws Exception {
         String collection = """
                 <collection xmlns="http://www.loc.gov/MARC21/slim">
                   <record>
@@ -74,7 +73,7 @@ class MarcXmlImporterTest {
     }
 
     @Test
-    void identifiesArticleFromHostIssnWithoutHostControlSubfield() throws IOException {
+    void identifiesArticleFromHostIssnWithoutHostControlSubfield() throws Exception {
         String xml = """
                 <record xmlns="http://www.loc.gov/MARC21/slim">
                   <leader>00000nam a2200000 a 4500</leader>
@@ -96,7 +95,7 @@ class MarcXmlImporterTest {
     }
 
     @Test
-    void importsPublicationYearWithIsbdPunctuation() throws IOException {
+    void importsPublicationYearWithIsbdPunctuation() throws Exception {
         String xml = """
                 <record xmlns="http://www.loc.gov/MARC21/slim">
                   <leader>00000nam a2200000 a 4500</leader>
@@ -111,14 +110,14 @@ class MarcXmlImporterTest {
     }
 
     @Test
-    void doesNotRecognizeOtherXml() throws IOException {
+    void doesNotRecognizeOtherXml() throws Exception {
         String other = "<rdf:RDF xmlns:rdf=\"http://www.w3.org/1999/02/22-rdf-syntax-ns#\"/>";
         assertFalse(importer.isRecognizedFormat(other));
         assertEquals(0, importer.importDatabase(other).getDatabase().getEntryCount());
     }
 
     @Test
-    void malformedXmlReturnsInvalidResult() throws IOException {
+    void malformedXmlReturnsInvalidResult() throws Exception {
         ParserResult result = importer.importDatabase("<record><leader>");
 
         assertTrue(result.isInvalid());
@@ -126,7 +125,7 @@ class MarcXmlImporterTest {
     }
 
     @Test
-    void malformedDatafieldTagsDoNotDiscardValidFields() throws IOException {
+    void malformedDatafieldTagsDoNotDiscardValidFields() throws Exception {
         for (String attribute : List.of("tag=\"abc\"", "")) {
             String xml = RECORD.replace("</marc:record>", "<marc:datafield " + attribute
                     + "><marc:subfield code=\"a\">Ignored</marc:subfield></marc:datafield></marc:record>");
@@ -139,7 +138,7 @@ class MarcXmlImporterTest {
     }
 
     @Test
-    void doesNotRecognizeUnqualifiedRecordWithoutMarcNamespace() throws IOException {
+    void doesNotRecognizeUnqualifiedRecordWithoutMarcNamespace() throws Exception {
         String xml = RECORD.replace(" xmlns:marc=\"http://www.loc.gov/MARC21/slim\"", "")
                            .replace("marc:", "");
 
@@ -147,7 +146,7 @@ class MarcXmlImporterTest {
     }
 
     @Test
-    void rejectsExternalEntity() throws IOException {
+    void rejectsExternalEntity() throws Exception {
         String xml = """
                 <!DOCTYPE record [<!ENTITY external SYSTEM "file:///not-accessed">]>
                 <record><leader>&external;</leader></record>

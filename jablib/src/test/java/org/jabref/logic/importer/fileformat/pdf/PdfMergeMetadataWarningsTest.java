@@ -8,7 +8,6 @@ import java.util.Optional;
 import javafx.collections.FXCollections;
 
 import org.jabref.logic.importer.ImportFormatPreferences;
-import org.jabref.logic.importer.ParseException;
 import org.jabref.logic.importer.ParserResult;
 import org.jabref.logic.l10n.Localization;
 import org.jabref.model.entry.field.StandardField;
@@ -45,7 +44,7 @@ class PdfMergeMetadataWarningsTest {
     }
 
     @Test
-    void preservesWarningWhenNoEntriesAreExtracted() throws IOException, ParseException {
+    void preservesWarningWhenNoEntriesAreExtracted() throws Exception {
         try (PDDocument document = createAmbiguousBook()) {
             ParserResult result = importer.importDatabase(tempDir.resolve("book.pdf"), document);
 
@@ -55,7 +54,7 @@ class PdfMergeMetadataWarningsTest {
     }
 
     @Test
-    void preservesWarningWhenAnotherImporterProvidesAnEntry() throws IOException, ParseException {
+    void preservesWarningWhenAnotherImporterProvidesAnEntry() throws Exception {
         try (PDDocument document = createAmbiguousBook()) {
             document.getDocumentInformation().setTitle("Book title from PDF metadata");
 
@@ -69,7 +68,7 @@ class PdfMergeMetadataWarningsTest {
     }
 
     @Test
-    void doesNotCarryWarningsIntoSubsequentImports() throws IOException, ParseException {
+    void doesNotCarryWarningsIntoSubsequentImports() throws Exception {
         try (PDDocument ambiguousBook = createAmbiguousBook();
              PDDocument cleanDocument = new PDDocument()) {
             ParserResult ambiguousResult = importer.importDatabase(tempDir.resolve("ambiguous.pdf"), ambiguousBook);

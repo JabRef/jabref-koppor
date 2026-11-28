@@ -1,10 +1,8 @@
 package org.jabref.gui.citedrive;
 
-import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Optional;
-import java.util.concurrent.ExecutionException;
 
 import org.jabref.gui.DialogService;
 import org.jabref.gui.desktop.os.NativeDesktop;
@@ -54,7 +52,7 @@ class CiteDriveOAuthTest {
     @Test
     @Timeout(60)
     @Disabled
-    void getToken() throws ExecutionException, InterruptedException {
+    void getToken() throws Exception {
         NativeDesktop nativeDesktop = Injector.instantiateModelOrService(NativeDesktop.class);
 
         RemotePreferences remotePreferences = mock(RemotePreferences.class);
@@ -73,7 +71,7 @@ class CiteDriveOAuthTest {
     @Test
     @Timeout(60)
     @Disabled
-    void putLibraryOAuthFromScratch() throws ExecutionException, InterruptedException, IOException {
+    void putLibraryOAuthFromScratch() throws Exception {
         NativeDesktop nativeDesktop = Injector.instantiateModelOrService(NativeDesktop.class);
 
         RemotePreferences remotePreferences = mock(RemotePreferences.class);
@@ -115,7 +113,7 @@ class CiteDriveOAuthTest {
     @Test
     @Timeout(60)
     @Disabled
-    void putLibrary() throws ExecutionException, InterruptedException, IOException {
+    void putLibrary() throws Exception {
         NativeDesktop nativeDesktop = Injector.instantiateModelOrService(NativeDesktop.class);
 
         RemotePreferences remotePreferences = mock(RemotePreferences.class);

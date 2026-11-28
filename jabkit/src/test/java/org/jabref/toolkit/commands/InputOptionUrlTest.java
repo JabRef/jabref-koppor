@@ -54,7 +54,7 @@ class InputOptionUrlTest extends AbstractJabKitTest {
     }
 
     @Test
-    void inputOptionDownloadsBibtexFromUrl(@TempDir Path tempDir) throws IOException {
+    void inputOptionDownloadsBibtexFromUrl(@TempDir Path tempDir) throws Exception {
         server.enqueue(new MockResponse.Builder().code(200).body(BIBTEX_CONTENT).build());
         HttpUrl url = server.url("/references.bib");
         Path outputPath = tempDir.resolve("output");
@@ -70,7 +70,7 @@ class InputOptionUrlTest extends AbstractJabKitTest {
     }
 
     @Test
-    void positionalFileArgumentAlsoDownloadsFromUrl(@TempDir Path tempDir) throws IOException {
+    void positionalFileArgumentAlsoDownloadsFromUrl(@TempDir Path tempDir) throws Exception {
         server.enqueue(new MockResponse.Builder().code(200).body(BIBTEX_CONTENT).build());
         HttpUrl url = server.url("/references.bib");
         Path outputPath = tempDir.resolve("output");
@@ -86,7 +86,7 @@ class InputOptionUrlTest extends AbstractJabKitTest {
     }
 
     @Test
-    void inputOptionDownloadsBibtexFromUppercaseSchemeUrl(@TempDir Path tempDir) throws IOException {
+    void inputOptionDownloadsBibtexFromUppercaseSchemeUrl(@TempDir Path tempDir) throws Exception {
         server.enqueue(new MockResponse.Builder().code(200).body(BIBTEX_CONTENT).build());
         String url = server.url("/references.bib").toString().replaceFirst("^http://", "HTTP://");
         Path outputPath = tempDir.resolve("output");

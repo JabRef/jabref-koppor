@@ -1,6 +1,5 @@
 package org.jabref.gui.desktop.os;
 
-import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.attribute.PosixFilePermission;
@@ -24,7 +23,7 @@ class LinuxTest {
     @TempDir Path tempDir;
 
     @Test
-    void terminalEmulatorNameIsTheFileNameOfTheLinkTarget() throws IOException {
+    void terminalEmulatorNameIsTheFileNameOfTheLinkTarget() throws Exception {
         Path terminal = Files.createFile(tempDir.resolve("gnome-terminal.wrapper"));
         Path link = Files.createSymbolicLink(tempDir.resolve("x-terminal-emulator"), terminal);
 
@@ -37,14 +36,14 @@ class LinuxTest {
     }
 
     @Test
-    void terminalEmulatorNameIsEmptyForDanglingLink() throws IOException {
+    void terminalEmulatorNameIsEmptyForDanglingLink() throws Exception {
         Path link = Files.createSymbolicLink(tempDir.resolve("x-terminal-emulator"), tempDir.resolve("removed-terminal"));
 
         assertEquals(Optional.empty(), Linux.terminalEmulatorName(link));
     }
 
     @Test
-    void terminalEmulatorNameIsEmptyForRegularFile() throws IOException {
+    void terminalEmulatorNameIsEmptyForRegularFile() throws Exception {
         Path file = Files.createFile(tempDir.resolve("x-terminal-emulator"));
 
         assertEquals(Optional.empty(), Linux.terminalEmulatorName(file));
@@ -125,7 +124,7 @@ class LinuxTest {
     }
 
     @Test
-    void applicationCommandKeepsExecutablePathWithSpaces() throws IOException {
+    void applicationCommandKeepsExecutablePathWithSpaces() throws Exception {
         Path viewer = Files.createFile(Files.createDirectory(tempDir.resolve("My Viewer")).resolve("viewer"));
         Files.setPosixFilePermissions(viewer, EnumSet.allOf(PosixFilePermission.class));
 

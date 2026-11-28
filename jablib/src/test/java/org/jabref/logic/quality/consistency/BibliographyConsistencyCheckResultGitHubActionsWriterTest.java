@@ -29,7 +29,7 @@ class BibliographyConsistencyCheckResultGitHubActionsWriterTest {
     private final BibtexImporter importer = new BibtexImporter(mock(ImportFormatPreferences.class, Answers.RETURNS_DEEP_STUBS), new DummyFileUpdateMonitor());
 
     @Test
-    void deviatingFieldsAreReportedAsGitHubActionsAnnotations(@TempDir Path tempDir) throws IOException {
+    void deviatingFieldsAreReportedAsGitHubActionsAnnotations(@TempDir Path tempDir) throws Exception {
         Path bibFile = tempDir.resolve("library.bib");
         Files.writeString(bibFile, """
                 @Article{first,
@@ -59,7 +59,7 @@ class BibliographyConsistencyCheckResultGitHubActionsWriterTest {
     }
 
     @Test
-    void missingRequiredFieldsAreReported(@TempDir Path tempDir) throws IOException {
+    void missingRequiredFieldsAreReported(@TempDir Path tempDir) throws Exception {
         Path bibFile = tempDir.resolve("library.bib");
         Files.writeString(bibFile, """
                 @Comment{jabref-meta: databaseType:bibtex;}
@@ -85,7 +85,7 @@ class BibliographyConsistencyCheckResultGitHubActionsWriterTest {
     }
 
     @Test
-    void onlyFieldsDifferingWithinTheEntryTypeAreReported(@TempDir Path tempDir) throws IOException {
+    void onlyFieldsDifferingWithinTheEntryTypeAreReported(@TempDir Path tempDir) throws Exception {
         Path bibFile = tempDir.resolve("library.bib");
         Files.writeString(bibFile, """
                 @Comment{jabref-meta: databaseType:bibtex;}

@@ -1,6 +1,5 @@
 package org.jabref.gui.externalfiles;
 
-import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
@@ -16,7 +15,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 class GitIgnoreFileFilterTest {
 
     @Test
-    void checkSimpleGitIgnore(@TempDir Path dir) throws IOException {
+    void checkSimpleGitIgnore(@TempDir Path dir) throws Exception {
         Files.writeString(dir.resolve(".gitignore"), """
                 *.png
                 """);
@@ -25,7 +24,7 @@ class GitIgnoreFileFilterTest {
     }
 
     @Test
-    void checkSimpleGitIgnoreWithAllowing(@TempDir Path dir) throws IOException {
+    void checkSimpleGitIgnoreWithAllowing(@TempDir Path dir) throws Exception {
         Files.writeString(dir.resolve(".gitignore"), """
                 !*.png
                 """);
@@ -34,7 +33,7 @@ class GitIgnoreFileFilterTest {
     }
 
     @Test
-    void checkSimpleGitIgnoreWithOverwritingDefs(@TempDir Path dir) throws IOException {
+    void checkSimpleGitIgnoreWithOverwritingDefs(@TempDir Path dir) throws Exception {
         Files.writeString(dir.resolve(".gitignore"), """
                 !*.png
                 *.png
@@ -44,7 +43,7 @@ class GitIgnoreFileFilterTest {
     }
 
     @Test
-    void checkDirectoryGitIgnore(@TempDir Path dir) throws IOException {
+    void checkDirectoryGitIgnore(@TempDir Path dir) throws Exception {
         Files.writeString(dir.resolve(".gitignore"), """
                 **/*.png
                 """);
@@ -53,7 +52,7 @@ class GitIgnoreFileFilterTest {
     }
 
     @Test
-    void checkDirectoryGitIgnoreSubDir(@TempDir Path dir) throws IOException {
+    void checkDirectoryGitIgnoreSubDir(@TempDir Path dir) throws Exception {
         Files.writeString(dir.resolve(".gitignore"), """
                 ignore/.*
                 ignore/*
@@ -68,7 +67,7 @@ class GitIgnoreFileFilterTest {
 
     // [utest->req~jabgui.externalfiles.unlinked-files.search.gitignore-precedence~1]
     @Test
-    void rejectsFileMatchingPatternWithLiteralOpeningBrace(@TempDir Path dir) throws IOException {
+    void rejectsFileMatchingPatternWithLiteralOpeningBrace(@TempDir Path dir) throws Exception {
         Files.writeString(dir.resolve(".gitignore"), """
                 notes{draft.pdf
                 """);
@@ -77,7 +76,7 @@ class GitIgnoreFileFilterTest {
     }
 
     @Test
-    void acceptsOtherFilesWhenPatternContainsLiteralOpeningBrace(@TempDir Path dir) throws IOException {
+    void acceptsOtherFilesWhenPatternContainsLiteralOpeningBrace(@TempDir Path dir) throws Exception {
         Files.writeString(dir.resolve(".gitignore"), """
                 notes{draft.pdf
                 """);
@@ -86,7 +85,7 @@ class GitIgnoreFileFilterTest {
     }
 
     @Test
-    void acceptsDefaultIgnoredFileWhenNegatedInGitIgnore(@TempDir Path dir) throws IOException {
+    void acceptsDefaultIgnoredFileWhenNegatedInGitIgnore(@TempDir Path dir) throws Exception {
         Files.writeString(dir.resolve(".gitignore"), """
                 !desktop.ini
                 """);
@@ -95,7 +94,7 @@ class GitIgnoreFileFilterTest {
     }
 
     @Test
-    void rejectsDefaultIgnoredFileWithoutGitIgnore(@TempDir Path dir) throws IOException {
+    void rejectsDefaultIgnoredFileWithoutGitIgnore(@TempDir Path dir) throws Exception {
         GitIgnoreFileFilter gitIgnoreFileFilter = new GitIgnoreFileFilter(dir);
         assertFalse(gitIgnoreFileFilter.accept(dir.resolve("Thumbs.db")));
     }
@@ -103,7 +102,7 @@ class GitIgnoreFileFilterTest {
     // [utest->req~jabgui.externalfiles.unlinked-files.search.gitignore-symlink~1]
     @Test
     @DisabledOnOs(value = OS.WINDOWS, disabledReason = "Creating symbolic links may require elevated privileges")
-    void directoryOnlyRuleDoesNotIgnoreSymbolicLink(@TempDir Path dir) throws IOException {
+    void directoryOnlyRuleDoesNotIgnoreSymbolicLink(@TempDir Path dir) throws Exception {
         Files.writeString(dir.resolve(".gitignore"), "link/\n");
         Path target = Files.createDirectory(dir.resolve("target"));
         Path link = Files.createSymbolicLink(dir.resolve("link"), target);
@@ -113,7 +112,7 @@ class GitIgnoreFileFilterTest {
 
     // [utest->req~jabgui.externalfiles.unlinked-files.search.gitignore-precedence~1]
     @Test
-    void nestedIgnoreRetainsParentNegationAndOverridesParentRule(@TempDir Path dir) throws IOException {
+    void nestedIgnoreRetainsParentNegationAndOverridesParentRule(@TempDir Path dir) throws Exception {
         Files.writeString(dir.resolve(".gitignore"), "!desktop.ini\n*.pdf\n");
         Path nested = Files.createDirectory(dir.resolve("nested"));
         Files.writeString(nested.resolve(".gitignore"), "!keep.pdf\n");
@@ -125,7 +124,7 @@ class GitIgnoreFileFilterTest {
     }
 
     @Test
-    void subdirectoriesReuseParentRulesWithoutSharingTheirOwnRules(@TempDir Path dir) throws IOException {
+    void subdirectoriesReuseParentRulesWithoutSharingTheirOwnRules(@TempDir Path dir) throws Exception {
         Path parentIgnore = dir.resolve(".gitignore");
         Files.writeString(parentIgnore, "*.pdf\n");
         GitIgnoreFileFilter parent = new GitIgnoreFileFilter(dir);
@@ -142,7 +141,7 @@ class GitIgnoreFileFilterTest {
     }
 
     @Test
-    void normalizesSearchAndCandidatePathsBeforeApplyingAncestorRules(@TempDir Path dir) throws IOException {
+    void normalizesSearchAndCandidatePathsBeforeApplyingAncestorRules(@TempDir Path dir) throws Exception {
         Path other = Files.createDirectory(dir.resolve("other"));
         Files.writeString(other.resolve(".gitignore"), "*.pdf\n");
         Path target = Files.createDirectory(dir.resolve("target"));
@@ -159,14 +158,14 @@ class GitIgnoreFileFilterTest {
     // [utest->req~jabgui.externalfiles.unlinked-files.search.gitignore-windows-case~1]
     @Test
     @EnabledOnOs(OS.WINDOWS)
-    void windowsMatchesPatternsIgnoringCase(@TempDir Path dir) throws IOException {
+    void windowsMatchesPatternsIgnoringCase(@TempDir Path dir) throws Exception {
         Files.writeString(dir.resolve(".gitignore"), "*.pdf\n");
         assertFalse(new GitIgnoreFileFilter(dir).accept(dir.resolve("UPPER.PDF")));
     }
 
     @Test
     @DisabledOnOs(value = OS.WINDOWS, disabledReason = "\\ is an invalid filename character in Windows")
-    void acceptsFileWithBackslashInNameWhenPatternLooksLikeDirectory(@TempDir Path dir) throws IOException {
+    void acceptsFileWithBackslashInNameWhenPatternLooksLikeDirectory(@TempDir Path dir) throws Exception {
         Files.writeString(dir.resolve(".gitignore"), """
                 notes/draft.pdf
                 """);

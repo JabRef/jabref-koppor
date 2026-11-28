@@ -66,7 +66,7 @@ class AutosaveManagerTest {
     }
 
     @Test
-    void shutdownTerminatesExecutorAndCancelsPeriodicTask() throws InterruptedException {
+    void shutdownTerminatesExecutorAndCancelsPeriodicTask() throws Exception {
         try (ScheduledThreadPoolExecutor executor = new ScheduledThreadPoolExecutor(2)) {
             AutosaveManager manager = new AutosaveManager(databaseContext, mock(CoarseChangeFilter.class), executor);
             try {

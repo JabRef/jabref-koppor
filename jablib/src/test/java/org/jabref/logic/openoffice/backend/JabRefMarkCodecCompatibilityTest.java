@@ -19,7 +19,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 class JabRefMarkCodecCompatibilityTest {
 
     @Test
-    void citationTypesRoundTripWithoutDerivedNumbersOrChangingStorageOrder() throws JabRefMarkCodecException {
+    void citationTypesRoundTripWithoutDerivedNumbersOrChangingStorageOrder() throws Exception {
         for (CitationType citationType : CitationType.values()) {
             JabRefMarkData identity = new JabRefMarkData(List.of("key2", "key1", "key2"), "stable-id", citationType);
             JabRefMarkData parsed = JabRefMarkCodec.decode(JabRefMarkCodec.encode(identity));

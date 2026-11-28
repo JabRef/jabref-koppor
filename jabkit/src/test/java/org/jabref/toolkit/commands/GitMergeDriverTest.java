@@ -28,7 +28,7 @@ class GitMergeDriverTest extends AbstractJabKitTest {
     }
 
     @Test
-    void mergedFileYieldsExitCodeZero() throws IOException {
+    void mergedFileYieldsExitCodeZero() throws Exception {
         Path base = mergeFile("base", "merge-base.bib");
         Path current = mergeFile("current", "merge-current.bib");
         Path other = mergeFile("other", "merge-other.bib");
@@ -41,7 +41,7 @@ class GitMergeDriverTest extends AbstractJabKitTest {
     }
 
     @Test
-    void conflictsAreListedOnStderrWithExitCodeOne() throws IOException {
+    void conflictsAreListedOnStderrWithExitCodeOne() throws Exception {
         Path base = mergeFile("base", "merge-base.bib");
         Path current = mergeFile("current", "merge-current.bib");
         Path other = mergeFile("other", "merge-other-conflict.bib");
@@ -57,7 +57,7 @@ class GitMergeDriverTest extends AbstractJabKitTest {
     }
 
     @Test
-    void refusedMergeLeavesCurrentUntouchedWithExitCodeOne() throws IOException {
+    void refusedMergeLeavesCurrentUntouchedWithExitCodeOne() throws Exception {
         Path base = mergeFile("base", "merge-base.bib");
         Path current = mergeFile("current", "merge-duplicate-keys.bib");
         Path other = mergeFile("other", "merge-other.bib");

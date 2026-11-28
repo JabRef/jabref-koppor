@@ -61,7 +61,7 @@ class BstStyleLoaderTest {
     }
 
     @Test
-    void loadingExternalStylesPreservesDuplicatesAndBuiltinNameWithoutPersisting() throws IOException {
+    void loadingExternalStylesPreservesDuplicatesAndBuiltinNameWithoutPersisting() throws Exception {
         BstStyle style = createExternalStyle("apa.bst");
         when(preferences.getExternalBstStyles()).thenReturn(FXCollections.observableArrayList(style.getPath(), style.getPath()));
 
@@ -76,7 +76,7 @@ class BstStyleLoaderTest {
     }
 
     @Test
-    void addExternalStyleRegistersParsedStyleAndPersistsOnce() throws IOException {
+    void addExternalStyleRegistersParsedStyleAndPersistsOnce() throws Exception {
         BstStyle style = createExternalStyle("custom.bst");
         List<BstStyle> expectedStyles = new ArrayList<>(loader.getStyles());
         expectedStyles.add(style);
@@ -102,7 +102,7 @@ class BstStyleLoaderTest {
     }
 
     @Test
-    void addExternalStyleRejectsEqualPathWithoutPersistingAgain() throws IOException {
+    void addExternalStyleRejectsEqualPathWithoutPersistingAgain() throws Exception {
         BstStyle style = createExternalStyle("custom.bst");
         BstStyle duplicate = BstStyle.loadExternal(styleFolder.resolve("custom.bst"));
         assertTrue(loader.addExternalStyle(style));
@@ -117,7 +117,7 @@ class BstStyleLoaderTest {
     }
 
     @Test
-    void addExternalStyleRejectsSameNameAtDifferentPathWithUppercaseExtension() throws IOException {
+    void addExternalStyleRejectsSameNameAtDifferentPathWithUppercaseExtension() throws Exception {
         BstStyle style = createExternalStyle("custom.bst");
         Files.createDirectory(styleFolder.resolve("other"));
         BstStyle duplicate = createExternalStyle("other/custom.BST");
@@ -134,7 +134,7 @@ class BstStyleLoaderTest {
 
     @ParameterizedTest
     @ValueSource(strings = {"IEEEtran.BST", "abbrv.bst", "apa.BsT"})
-    void addExternalStyleRejectsBuiltinNameWithoutPersisting(String filename) throws IOException {
+    void addExternalStyleRejectsBuiltinNameWithoutPersisting(String filename) throws Exception {
         BstStyle style = createExternalStyle(filename);
         List<BstStyle> beforeAdding = loader.getStyles();
 
@@ -145,7 +145,7 @@ class BstStyleLoaderTest {
     }
 
     @Test
-    void addExternalStyleAcceptsDifferentCaseFromBuiltinName() throws IOException {
+    void addExternalStyleAcceptsDifferentCaseFromBuiltinName() throws Exception {
         BstStyle style = createExternalStyle("APA.bst");
 
         assertTrue(loader.addExternalStyle(style));
@@ -157,7 +157,7 @@ class BstStyleLoaderTest {
     }
 
     @Test
-    void addExternalStyleAcceptsDifferentCaseFromExternalName() throws IOException {
+    void addExternalStyleAcceptsDifferentCaseFromExternalName() throws Exception {
         BstStyle style = createExternalStyle("custom.bst");
         Files.createDirectory(styleFolder.resolve("other"));
         BstStyle otherStyle = createExternalStyle("other/CUSTOM.bst");
@@ -173,7 +173,7 @@ class BstStyleLoaderTest {
     }
 
     @Test
-    void removeEqualStylePersistsOnlyActualRemoval() throws IOException {
+    void removeEqualStylePersistsOnlyActualRemoval() throws Exception {
         List<BstStyle> internalStyles = loader.getStyles();
         BstStyle style = createExternalStyle("custom.bst");
         BstStyle equalStyle = BstStyle.loadExternal(styleFolder.resolve("custom.bst"));
@@ -200,7 +200,7 @@ class BstStyleLoaderTest {
     }
 
     @Test
-    void removeUnregisteredStyleDoesNotPersist() throws IOException {
+    void removeUnregisteredStyleDoesNotPersist() throws Exception {
         BstStyle style = createExternalStyle("custom.bst");
         List<BstStyle> beforeRemoving = loader.getStyles();
 
@@ -220,7 +220,7 @@ class BstStyleLoaderTest {
     }
 
     @Test
-    void getStylesSnapshotDoesNotChangeAfterAddingStyle() throws IOException {
+    void getStylesSnapshotDoesNotChangeAfterAddingStyle() throws Exception {
         List<BstStyle> styles = loader.getStyles();
         BstStyle style = createExternalStyle("custom.bst");
 
@@ -231,7 +231,7 @@ class BstStyleLoaderTest {
     }
 
     @Test
-    void getStylesSnapshotDoesNotChangeAfterRemovingStyle() throws IOException {
+    void getStylesSnapshotDoesNotChangeAfterRemovingStyle() throws Exception {
         BstStyle style = createExternalStyle("custom.bst");
         assertTrue(loader.addExternalStyle(style));
         List<BstStyle> styles = loader.getStyles();
@@ -246,7 +246,7 @@ class BstStyleLoaderTest {
 
     @ParameterizedTest
     @ValueSource(strings = {"custom.bst", "UPPER.BST", "mixed.BsT", "apa.bst"})
-    void loadExternalStyleParsesWithoutRegisteringOrPersisting(String filename) throws IOException {
+    void loadExternalStyleParsesWithoutRegisteringOrPersisting(String filename) throws Exception {
         Path stylePath = Files.writeString(styleFolder.resolve(filename), "READ");
         List<BstStyle> beforeLoading = loader.getStyles();
 
@@ -262,7 +262,7 @@ class BstStyleLoaderTest {
 
     @ParameterizedTest
     @ValueSource(strings = {"customstyle", "style.txt", "style.bst.txt"})
-    void loadExternalStyleRejectsWrongExtensionEvenWithValidContent(String filename) throws IOException {
+    void loadExternalStyleRejectsWrongExtensionEvenWithValidContent(String filename) throws Exception {
         Path stylePath = Files.writeString(styleFolder.resolve(filename), "READ");
         assertEquals("READ", BstStyle.loadExternal(stylePath).getSource());
         List<BstStyle> beforeLoading = loader.getStyles();
@@ -275,7 +275,7 @@ class BstStyleLoaderTest {
     }
 
     @Test
-    void loadExternalStyleRejectsInvalidContentWithoutPersisting() throws IOException {
+    void loadExternalStyleRejectsInvalidContentWithoutPersisting() throws Exception {
         Path stylePath = Files.writeString(styleFolder.resolve("invalid.bst"), "}");
         List<BstStyle> beforeLoading = loader.getStyles();
 
@@ -298,7 +298,7 @@ class BstStyleLoaderTest {
     }
 
     @Test
-    void loadExternalStyleRejectsDirectoryWithoutPersisting() throws IOException {
+    void loadExternalStyleRejectsDirectoryWithoutPersisting() throws Exception {
         Path stylePath = Files.createDirectory(styleFolder.resolve("directory.bst"));
         List<BstStyle> beforeLoading = loader.getStyles();
 

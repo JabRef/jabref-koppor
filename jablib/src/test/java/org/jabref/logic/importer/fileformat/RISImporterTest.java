@@ -1,9 +1,7 @@
 package org.jabref.logic.importer.fileformat;
 
 import java.io.BufferedReader;
-import java.io.IOException;
 import java.io.Reader;
-import java.net.URISyntaxException;
 import java.nio.file.Path;
 import java.util.Optional;
 
@@ -15,6 +13,7 @@ import org.jabref.model.entry.types.StandardEntryType;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
+import org.junit.jupiter.params.provider.ValueSource;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -24,13 +23,13 @@ class RISImporterTest {
     private RisImporter importer = new RisImporter();
 
     @Test
-    void ifNotRecognizedFormat() throws IOException, URISyntaxException {
+    void ifNotRecognizedFormat() throws Exception {
         Path file = Path.of(RISImporterTest.class.getResource("RisImporterCorrupted.ris").toURI());
         assertFalse(importer.isRecognizedFormat(file));
     }
 
     @Test
-    void serialNumberOfABookIsImportedAsIsbn() throws IOException {
+    void serialNumberOfABookIsImportedAsIsbn() throws Exception {
         BibEntry entry = importOne("""
                 TY  - BOOK
                 ED  - Kempf, Ute
@@ -46,7 +45,7 @@ class RISImporterTest {
     }
 
     @Test
-    void serialNumberOfABookChapterIsImportedAsIsbn() throws IOException {
+    void serialNumberOfABookChapterIsImportedAsIsbn() throws Exception {
         BibEntry entry = importOne("""
                 TY  - CHAP
                 SN  - 978-1-4822-5326-9
@@ -61,7 +60,7 @@ class RISImporterTest {
 
     @ParameterizedTest
     @CsvSource({"BOOK, isbn: 978-3-932869-19-8", "CHAP, IsSn : 978-3-932869-19-8"})
-    void serialNumberLabelsAreRemovedFromBooksAndChapters(String risType, String serialNumber) throws IOException {
+    void serialNumberLabelsAreRemovedFromBooksAndChapters(String risType, String serialNumber) throws Exception {
         BibEntry entry = importOne("""
                 TY  - %s
                 SN  - %s
@@ -73,7 +72,7 @@ class RISImporterTest {
 
     @ParameterizedTest
     @CsvSource({"EBOOK, Book", "ECHAP, InCollection"})
-    void electronicBooksAndChaptersImportSerialNumberAsIsbn(String risType, StandardEntryType expectedType) throws IOException {
+    void electronicBooksAndChaptersImportSerialNumberAsIsbn(String risType, StandardEntryType expectedType) throws Exception {
         BibEntry entry = importOne("""
                 TY  - %s
                 SN  - ISBN: 978-3-932869-19-8
@@ -86,7 +85,7 @@ class RISImporterTest {
     }
 
     @Test
-    void serialNumberIsImportedAsIsbnWhenItComesBeforeTheType() throws IOException {
+    void serialNumberIsImportedAsIsbnWhenItComesBeforeTheType() throws Exception {
         BibEntry entry = importOne("""
                 SN  - 978-3-932869-19-8
                 TY  - BOOK
@@ -99,8 +98,8 @@ class RISImporterTest {
     }
 
     @ParameterizedTest
-    @CsvSource({"JOUR", "MGZN", "CONF", "THES", "RPRT", "GEN"})
-    void serialNumberOfOtherEntryTypesStaysIssn(String risType) throws IOException {
+    @ValueSource(strings = {"JOUR", "MGZN", "CONF", "THES", "RPRT", "GEN"})
+    void serialNumberOfOtherEntryTypesStaysIssn(String risType) throws Exception {
         BibEntry entry = importOne("""
                 TY  - %s
                 SN  - 1537-744X
@@ -113,7 +112,7 @@ class RISImporterTest {
     }
 
     @Test
-    void accessionNumberDoesNotOverwriteIssueNumber() throws IOException {
+    void accessionNumberDoesNotOverwriteIssueNumber() throws Exception {
         String ris = """
                 TY  - JOUR
                 VL  - 28
@@ -129,7 +128,7 @@ class RISImporterTest {
         assertEquals(Optional.of("26957754"), entry.getField(new UnknownField("accession-num")));
     }
 
-    private BibEntry importOne(String ris) throws IOException {
+    private BibEntry importOne(String ris) throws Exception {
         var entries = importer.importDatabase(ris).getDatabase().getEntries();
         assertEquals(1, entries.size());
         return entries.getFirst();

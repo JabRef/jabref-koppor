@@ -15,7 +15,7 @@ import static org.jabref.logic.icore.ConferenceUtils.normalize;
 import static org.jabref.logic.icore.ConferenceUtils.removeAllParenthesesWithContent;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class ConferenceUtilsTest {
+class ConferenceUtilsTest {
     @ParameterizedTest(name = "Extract from \"{0}\" should return \"{1}\"")
     @CsvSource({
             "(SERA), SERA",                                                     // Simple acronym extraction

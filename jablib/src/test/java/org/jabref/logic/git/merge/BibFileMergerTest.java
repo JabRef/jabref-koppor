@@ -92,7 +92,7 @@ class BibFileMergerTest {
     }
 
     @Test
-    void appliesNonConflictingChangesOfOtherToCurrent() throws IOException {
+    void appliesNonConflictingChangesOfOtherToCurrent() throws Exception {
         Path current = version("current", BASE.replace("title  = {Base Title},", "title  = {Current Title},\n  journal = {Journal of Tests},"));
         Path other = version("other", BASE.replace("year   = {2020},", "year   = {2020},\n  doi    = {10.1000/xyz123},") + "\n" + NEWTON);
 
@@ -110,7 +110,7 @@ class BibFileMergerTest {
     }
 
     @Test
-    void identicalVersionsMergeCleanly() throws IOException {
+    void identicalVersionsMergeCleanly() throws Exception {
         Path current = version("current", BASE);
 
         MergeOutcome outcome = merger.merge(version("base", BASE), current, version("other", BASE));
@@ -120,7 +120,7 @@ class BibFileMergerTest {
     }
 
     @Test
-    void conflictingEntryKeepsCurrentVersion() throws IOException {
+    void conflictingEntryKeepsCurrentVersion() throws Exception {
         Path current = version("current", BASE.replace("Base Title", "Current Title"));
         Path other = version("other", BASE.replace("Base Title", "Other Title") + "\n" + NEWTON);
 
@@ -132,7 +132,7 @@ class BibFileMergerTest {
     }
 
     @Test
-    void appliesEntryTypeChangedInOther() throws IOException {
+    void appliesEntryTypeChangedInOther() throws Exception {
         Path current = version("current", BASE);
 
         MergeOutcome outcome = merger.merge(version("base", BASE), current, version("other", BASE.replace("@Article{Smith2020", "@Book{Smith2020")));
@@ -142,7 +142,7 @@ class BibFileMergerTest {
     }
 
     @Test
-    void entryTypeChangedDifferentlyOnBothSidesIsConflict() throws IOException {
+    void entryTypeChangedDifferentlyOnBothSidesIsConflict() throws Exception {
         Path current = version("current", BASE.replace("@Article{Smith2020", "@Report{Smith2020"));
         Path other = version("other", BASE.replace("@Article{Smith2020", "@Book{Smith2020") + "\n" + NEWTON);
 
@@ -153,7 +153,7 @@ class BibFileMergerTest {
     }
 
     @Test
-    void entryTypeChangedInCurrentAndDeletedInOtherIsConflict() throws IOException {
+    void entryTypeChangedInCurrentAndDeletedInOtherIsConflict() throws Exception {
         Path current = version("current", BASE.replace("@Article{Smith2020", "@Report{Smith2020"));
 
         MergeOutcome outcome = merger.merge(version("base", BASE), current, version("other", DOE));
@@ -163,7 +163,7 @@ class BibFileMergerTest {
     }
 
     @Test
-    void appliesEntryCommentChangedInOther() throws IOException {
+    void appliesEntryCommentChangedInOther() throws Exception {
         Path current = version("current", "% Note about Smith\n" + BASE);
 
         MergeOutcome outcome = merger.merge(version("base", "% Note about Smith\n" + BASE), current, version("other", "% Changed note about Smith\n" + BASE));
@@ -173,7 +173,7 @@ class BibFileMergerTest {
     }
 
     @Test
-    void entryCommentChangedDifferentlyOnBothSidesIsConflict() throws IOException {
+    void entryCommentChangedDifferentlyOnBothSidesIsConflict() throws Exception {
         Path current = version("current", "% Own note about Smith\n" + BASE);
 
         MergeOutcome outcome = merger.merge(version("base", "% Note about Smith\n" + BASE), current, version("other", "% Changed note about Smith\n" + BASE));
@@ -183,7 +183,7 @@ class BibFileMergerTest {
     }
 
     @Test
-    void entryCommentChangedInOtherAndDeletedInCurrentIsConflict() throws IOException {
+    void entryCommentChangedInOtherAndDeletedInCurrentIsConflict() throws Exception {
         Path current = version("current", DOE);
 
         MergeOutcome outcome = merger.merge(version("base", "% Note about Smith\n" + BASE), current, version("other", "% Changed note about Smith\n" + BASE));
@@ -193,7 +193,7 @@ class BibFileMergerTest {
     }
 
     @Test
-    void entryCommentChangedInCurrentAndDeletedInOtherIsConflict() throws IOException {
+    void entryCommentChangedInCurrentAndDeletedInOtherIsConflict() throws Exception {
         Path current = version("current", "% Own note about Smith\n" + BASE);
 
         MergeOutcome outcome = merger.merge(version("base", "% Note about Smith\n" + BASE), current, version("other", DOE));
@@ -203,7 +203,7 @@ class BibFileMergerTest {
     }
 
     @Test
-    void keepsCustomEntryTypeDefinition() throws IOException {
+    void keepsCustomEntryTypeDefinition() throws Exception {
         String customType = "@Comment{jabref-entrytype: mytype: req[author;title] opt[year]}\n\n" + """
                 @Mytype{Smith2020,
                   author = {Smith, John},
@@ -221,7 +221,7 @@ class BibFileMergerTest {
     }
 
     @Test
-    void refusesStringAddedInOther() throws IOException {
+    void refusesStringAddedInOther() throws Exception {
         Path current = version("current", BASE);
         Path other = version("other", "@String{jot = {Journal of Tests}}\n\n" + BASE);
 
@@ -232,7 +232,7 @@ class BibFileMergerTest {
     }
 
     @Test
-    void refusesSharedDatabaseIdAddedInOther() throws IOException {
+    void refusesSharedDatabaseIdAddedInOther() throws Exception {
         Path current = version("current", BASE);
         Path other = version("other", "% DBID: 6a7b8c\n\n" + BASE);
 
@@ -243,7 +243,7 @@ class BibFileMergerTest {
     }
 
     @Test
-    void refusesDuplicateCitationKeys() throws IOException {
+    void refusesDuplicateCitationKeys() throws Exception {
         String duplicateKeys = SMITH + "\n" + SMITH.replace("Base Title", "Duplicate Key");
         Path current = version("current", duplicateKeys);
 
@@ -254,7 +254,7 @@ class BibFileMergerTest {
     }
 
     @Test
-    void refusesFileWithParserWarnings() throws IOException {
+    void refusesFileWithParserWarnings() throws Exception {
         String duplicateStrings = "@String{jot = {Journal of Tests}}\n@String{jot = {Other Journal}}\n\n" + BASE;
         Path current = version("current", duplicateStrings);
 
@@ -265,7 +265,7 @@ class BibFileMergerTest {
     }
 
     @Test
-    void refusesEmptyEntry() throws IOException {
+    void refusesEmptyEntry() throws Exception {
         String withEmptyEntry = BASE + "\n@Misc{,\n}\n";
         Path current = version("current", withEmptyEntry);
 
@@ -276,7 +276,7 @@ class BibFileMergerTest {
     }
 
     @Test
-    void refusesUnusedCustomEntryType() throws IOException {
+    void refusesUnusedCustomEntryType() throws Exception {
         String unusedType = "@Comment{jabref-entrytype: unused: req[author] opt[year]}\n\n" + BASE;
         Path current = version("current", unusedType);
 
@@ -307,7 +307,7 @@ class BibFileMergerTest {
 
     @ParameterizedTest(name = "{0}")
     @MethodSource("unattachedComments")
-    void refusesUnattachedComment(String description, String content) throws IOException {
+    void refusesUnattachedComment(String description, String content) throws Exception {
         Path current = version("current", content);
 
         MergeOutcome outcome = merger.merge(version("base", content), current, version("other", content));
@@ -317,7 +317,7 @@ class BibFileMergerTest {
     }
 
     @Test
-    void refusesUnattachedCommentInNonUtf8File() throws IOException {
+    void refusesUnattachedCommentInNonUtf8File() throws Exception {
         String content = "% Encoding: ISO-8859-1\n\n% Notiz über Müller\n@Comment{jabref-entrytype: mytype: req[author] opt[year]}\n\n" + """
                 @Mytype{Mueller2020,
                   author = {Müller, Max},

@@ -13,7 +13,6 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -44,6 +43,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.CALLS_REAL_METHODS;
 import static org.mockito.Mockito.mockStatic;
@@ -81,7 +81,7 @@ class AbbreviationsTest {
     }
 
     @Test
-    void failedWriteDoesNotPreventOtherFilesOrReload(@TempDir Path directory) throws IOException {
+    void failedWriteDoesNotPreventOtherFilesOrReload(@TempDir Path directory) throws Exception {
         Path failed = directory.resolve("missing").resolve("failed.csv");
         Path valid = directory.resolve("valid.csv");
         AbbreviationPreferences preferences = new AbbreviationPreferences(List.of(failed.toString(), valid.toString()), true, false);
@@ -109,7 +109,7 @@ class AbbreviationsTest {
             }, _ -> {
             });
             repository.saveJournalLists(Map.of(failed, List.of(new Abbreviation("Journal", "J."))), preferences, executor,
-                    () -> org.junit.jupiter.api.Assertions.fail("Failed writes must not report success"),
+                    () -> fail("Failed writes must not report success"),
                     Unchecked.consumer(paths -> {
                         repository.reload(preferences, executor);
                         executor.submitted.getLast().get(5, TimeUnit.SECONDS);
@@ -143,7 +143,7 @@ class AbbreviationsTest {
 
     @ParameterizedTest
     @ValueSource(booleans = {true, false})
-    void reloadAndSaveDoNotOverlapCsvAccess(boolean saveFirst, @TempDir Path directory) throws IOException, InterruptedException, ExecutionException, TimeoutException {
+    void reloadAndSaveDoNotOverlapCsvAccess(boolean saveFirst, @TempDir Path directory) throws Exception {
         // [utest->req~journals.coordinate-csv-access~1]
         Path external = directory.resolve("external.csv");
         Files.writeString(external, "External Journal;Old J.;Old J.");
@@ -180,7 +180,7 @@ class AbbreviationsTest {
                         repository.reload(preferences, executor);
                         executor.submitted.getLast().get(5, TimeUnit.SECONDS);
                         callbackCompleted.set(true);
-                    }), failures -> org.junit.jupiter.api.Assertions.fail("Unexpected write failures: " + failures));
+                    }), failures -> fail("Unexpected write failures: " + failures));
             try {
                 if (saveFirst) {
                     save.run();
@@ -223,7 +223,7 @@ class AbbreviationsTest {
     }
 
     @Test
-    void disablingBuiltInListRetainsExternalAbbreviations(@TempDir Path tempDir) throws IOException {
+    void disablingBuiltInListRetainsExternalAbbreviations(@TempDir Path tempDir) throws Exception {
         // [utest->req~journals.disable-built-in~1]
         Path externalList = tempDir.resolve("journals.csv");
         Files.writeString(externalList, "External Journal;Ext. J.;Ext. J.");
@@ -247,7 +247,7 @@ class AbbreviationsTest {
     }
 
     @Test
-    void disabledExternalListIsExcludedWithoutChangingPrecedence(@TempDir Path directory) throws IOException {
+    void disabledExternalListIsExcludedWithoutChangingPrecedence(@TempDir Path directory) throws Exception {
         // [utest->req~journals.disable-external~1]
         Path first = directory.resolve("first.csv");
         Path second = directory.resolve("second.csv");
@@ -279,7 +279,7 @@ class AbbreviationsTest {
     }
 
     @Test
-    void externalListReloadCapturesDisabledStateBeforeBackgroundExecution(@TempDir Path directory) throws IOException {
+    void externalListReloadCapturesDisabledStateBeforeBackgroundExecution(@TempDir Path directory) throws Exception {
         Path external = directory.resolve("external.csv");
         Files.writeString(external, "External Journal;Ext. J.;Ext. J.");
         AbbreviationPreferences preferences = new AbbreviationPreferences(List.of(external.toString()), true, false);
@@ -419,7 +419,7 @@ class AbbreviationsTest {
     }
 
     @Test
-    void canceledRunningReloadMustFinishBeforeAnotherLoadStarts() throws InterruptedException, ExecutionException, TimeoutException {
+    void canceledRunningReloadMustFinishBeforeAnotherLoadStarts() throws Exception {
         // [utest->req~journals.cancel-obsolete-reloads~1]
         CountDownLatch firstStarted = new CountDownLatch(1);
         CountDownLatch releaseFirst = new CountDownLatch(1);
@@ -497,7 +497,7 @@ class AbbreviationsTest {
     }
 
     @Test
-    void concurrentLtwaLoadsShareOneInitialization() throws InterruptedException, ExecutionException, TimeoutException {
+    void concurrentLtwaLoadsShareOneInitialization() throws Exception {
         CountDownLatch firstStarted = new CountDownLatch(1);
         CountDownLatch secondStarted = new CountDownLatch(1);
         CompletableFuture<Boolean> releaseFirst = new CompletableFuture<>();
@@ -539,7 +539,7 @@ class AbbreviationsTest {
     }
 
     @Test
-    void disabledFallbackDoesNotRestoreDemonstrationOrBuiltInEntries(@TempDir Path tempDir) throws IOException {
+    void disabledFallbackDoesNotRestoreDemonstrationOrBuiltInEntries(@TempDir Path tempDir) throws Exception {
         Path external = tempDir.resolve("external.csv");
         Files.writeString(external, "External Journal;Ext. J.;Ext. J.");
         AbbreviationPreferences preferences = new AbbreviationPreferences(List.of(external.toString()), true, false);
@@ -554,7 +554,7 @@ class AbbreviationsTest {
     }
 
     @Test
-    void externalEntryOverridesBuiltInEntryRegardlessOfToggle(@TempDir Path tempDir) throws IOException {
+    void externalEntryOverridesBuiltInEntryRegardlessOfToggle(@TempDir Path tempDir) throws Exception {
         Path external = tempDir.resolve("external.csv");
         Files.writeString(external, "2D Materials;Custom abbreviation;Custom abbreviation");
         AbbreviationPreferences preferences = new AbbreviationPreferences(List.of(external.toString()), true, false);

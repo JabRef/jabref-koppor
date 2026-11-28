@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 
-import org.jabref.logic.importer.ImportException;
 import org.jabref.logic.importer.ImportFormatPreferences;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -42,19 +41,19 @@ class RepecNepImporterTest {
 
     @ParameterizedTest
     @MethodSource("fileNames")
-    void isRecognizedFormat(String fileName) throws IOException {
+    void isRecognizedFormat(String fileName) throws Exception {
         ImporterTestEngine.testIsRecognizedFormat(testImporter, fileName);
     }
 
     @ParameterizedTest
     @MethodSource("invalidFileNames")
-    void isNotRecognizedFormat(String fileName) throws IOException {
+    void isNotRecognizedFormat(String fileName) throws Exception {
         ImporterTestEngine.testIsNotRecognizedFormat(testImporter, fileName);
     }
 
     @ParameterizedTest
     @MethodSource("fileNames")
-    void importEntries(String fileName) throws ImportException, IOException {
+    void importEntries(String fileName) throws Exception {
         ImporterTestEngine.testImportEntries(testImporter, fileName, FILE_ENDING);
     }
 }

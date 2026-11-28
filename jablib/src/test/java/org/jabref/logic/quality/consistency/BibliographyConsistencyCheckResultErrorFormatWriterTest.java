@@ -28,7 +28,7 @@ class BibliographyConsistencyCheckResultErrorFormatWriterTest {
     private final BibtexImporter importer = new BibtexImporter(mock(ImportFormatPreferences.class, Answers.RETURNS_DEEP_STUBS), new DummyFileUpdateMonitor());
 
     @Test
-    void deviatingFieldsAreReportedOnePerLine(@TempDir Path tempDir) throws IOException {
+    void deviatingFieldsAreReportedOnePerLine(@TempDir Path tempDir) throws Exception {
         Path bibFile = tempDir.resolve("library.bib");
         Files.writeString(bibFile, """
                 @Article{first,
@@ -57,7 +57,7 @@ class BibliographyConsistencyCheckResultErrorFormatWriterTest {
     }
 
     @Test
-    void missingRequiredFieldsAreReported(@TempDir Path tempDir) throws IOException {
+    void missingRequiredFieldsAreReported(@TempDir Path tempDir) throws Exception {
         Path bibFile = tempDir.resolve("library.bib");
         Files.writeString(bibFile, """
                 @Comment{jabref-meta: databaseType:bibtex;}
@@ -82,7 +82,7 @@ class BibliographyConsistencyCheckResultErrorFormatWriterTest {
     }
 
     @Test
-    void onlyFieldsDifferingWithinTheEntryTypeAreReported(@TempDir Path tempDir) throws IOException {
+    void onlyFieldsDifferingWithinTheEntryTypeAreReported(@TempDir Path tempDir) throws Exception {
         Path bibFile = tempDir.resolve("library.bib");
         Files.writeString(bibFile, """
                 @Comment{jabref-meta: databaseType:bibtex;}

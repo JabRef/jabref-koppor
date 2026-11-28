@@ -1,12 +1,9 @@
 package org.jabref.logic.importer.fetcher;
 
-import java.net.MalformedURLException;
-import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.List;
 import java.util.Optional;
 
-import org.jabref.logic.importer.FetcherException;
 import org.jabref.logic.importer.fileformat.ACMPortalParser;
 import org.jabref.logic.search.query.SearchQueryVisitor;
 import org.jabref.model.entry.BibEntry;
@@ -32,7 +29,7 @@ class ACMPortalFetcherTest {
     }
 
     @Test
-    void searchByQueryFindsEntry() throws FetcherException {
+    void searchByQueryFindsEntry() throws Exception {
         BibEntry searchEntry = new BibEntry(StandardEntryType.Conference)
                 .withField(StandardField.AUTHOR, "Olsson, Tobias and Ericsson, Morgan and Wingkvist, Anna")
                 .withField(StandardField.YEAR, "2017")
@@ -60,19 +57,19 @@ class ACMPortalFetcherTest {
     }
 
     @Test
-    void performRawSearchQueryFindsEntry() throws FetcherException {
+    void performRawSearchQueryFindsEntry() throws Exception {
         List<BibEntry> fetchedEntries = fetcher.performRawSearchQuery("The relationship of code churn and architectural violations in the open source software JabRef");
         assertEquals(Optional.of("10.1145/3129790.3129810"),
                 fetchedEntries.stream().findFirst().flatMap(entry -> entry.getField(StandardField.DOI)));
     }
 
     @Test
-    void performRawSearchQueryReturnsEmptyForBlankQuery() throws FetcherException {
+    void performRawSearchQueryReturnsEmptyForBlankQuery() throws Exception {
         assertEquals(List.of(), fetcher.performRawSearchQuery("  "));
     }
 
     @Test
-    void getURLForQuery() throws MalformedURLException, URISyntaxException {
+    void getURLForQuery() throws Exception {
         String testQuery = "test query url";
         SearchQuery searchQueryObject = new SearchQuery(testQuery);
         SearchQueryVisitor visitor = new SearchQueryVisitor(searchQueryObject.getSearchFlags());

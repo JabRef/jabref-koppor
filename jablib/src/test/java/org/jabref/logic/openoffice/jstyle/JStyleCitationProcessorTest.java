@@ -41,7 +41,7 @@ class JStyleCitationProcessorTest {
     private final JournalAbbreviationRepository abbreviationRepository = mock(JournalAbbreviationRepository.class);
 
     @Test
-    void citationKeyMarkersEscapeLiteralKeysButKeepStyleMarkup() throws IOException {
+    void citationKeyMarkersEscapeLiteralKeysButKeepStyleMarkup() throws Exception {
         CitationGroups groups = groupsInOrder(group("keys", CitationType.AUTHORYEAR_PAR,
                 new Citation("<b>"), new Citation("&amp;"), new Citation("研究🔬")));
         List<BibEntry> entries = List.of(
@@ -55,7 +55,7 @@ class JStyleCitationProcessorTest {
     }
 
     @Test
-    void citationKeyMarkersUseOnlyCommaSeparatorsWithoutCustomWrappers() throws IOException {
+    void citationKeyMarkersUseOnlyCommaSeparatorsWithoutCustomWrappers() throws Exception {
         JStyle style = citationKeyStyle(false);
         style.getCitProperties().put("CitationGroupMarkupBefore", "");
         style.getCitProperties().put("CitationGroupMarkupAfter", "");
@@ -68,7 +68,7 @@ class JStyleCitationProcessorTest {
     }
 
     @Test
-    void citationKeyMarkersKeepChronologicalLocalOrderAndPageInfoWithoutChangingStorageOrder() throws IOException {
+    void citationKeyMarkersKeepChronologicalLocalOrderAndPageInfoWithoutChangingStorageOrder() throws Exception {
         Citation later = new Citation("later");
         Citation earlier = new Citation("earlier");
         OOText pageInfo = OOText.fromString("p. 5");
@@ -88,7 +88,7 @@ class JStyleCitationProcessorTest {
     }
 
     @Test
-    void invisibleCitationKeyGroupsContributeToBibliographyWithoutVisibleMarkers() throws IOException {
+    void invisibleCitationKeyGroupsContributeToBibliographyWithoutVisibleMarkers() throws Exception {
         CitationGroups groups = groupsInOrder(
                 group("hidden", CitationType.INVISIBLE_CIT, new Citation("hidden")),
                 group("visible", CitationType.AUTHORYEAR_PAR, new Citation("visible")));
@@ -104,7 +104,7 @@ class JStyleCitationProcessorTest {
 
     @ParameterizedTest
     @ValueSource(booleans = {false, true})
-    void citationKeyModeProducesUnnumberedBibliographyEvenWhenNumberingIsRequested(boolean numberEntries) throws IOException {
+    void citationKeyModeProducesUnnumberedBibliographyEvenWhenNumberingIsRequested(boolean numberEntries) throws Exception {
         JStyle style = citationKeyStyle(numberEntries);
         CitationGroups groups = groupsInOrder(group("keys", CitationType.AUTHORYEAR_PAR, new Citation("doe")));
         JStyleCitationProcessor.produceCitationMarkers(groups, List.of(new BibDatabase(List.of(entry("doe", "Doe, Jane", "2003", "A work")))), style);
@@ -116,7 +116,7 @@ class JStyleCitationProcessorTest {
     }
 
     @Test
-    void unresolvedBibliographyKeysRemainLiteral() throws IOException {
+    void unresolvedBibliographyKeysRemainLiteral() throws Exception {
         JStyle style = citationKeyStyle(false);
         CitationGroups groups = groupsInOrder(group("missing", CitationType.AUTHORYEAR_PAR, new Citation("<b>&amp;研究")));
         JStyleCitationProcessor.produceCitationMarkers(groups, List.of(), style);
@@ -126,7 +126,7 @@ class JStyleCitationProcessorTest {
     }
 
     @Test
-    void numericMarkersUseGlobalOrderAndReuseNumbersAcrossGroups() throws IOException {
+    void numericMarkersUseGlobalOrderAndReuseNumbersAcrossGroups() throws Exception {
         BibEntry zebra = entry("zebra", "Zebra, Zoe", "2024", "First cited");
         BibEntry alpha = entry("alpha", "Alpha, Alice", "2020", "Second cited");
         CitationGroup first = group("first", CitationType.AUTHORYEAR_PAR, new Citation("zebra"));
@@ -142,7 +142,7 @@ class JStyleCitationProcessorTest {
     }
 
     @Test
-    void numericMarkersNumberNewSourcesInChronologicalLocalOrderWithoutChangingStorageOrder() throws IOException {
+    void numericMarkersNumberNewSourcesInChronologicalLocalOrderWithoutChangingStorageOrder() throws Exception {
         BibEntry later = entry("later", "Alpha, Alice", "2024", "Later work");
         BibEntry earlier = entry("earlier", "Zebra, Zoe", "2020", "Earlier work");
         Citation laterCitation = new Citation("later");
@@ -158,7 +158,7 @@ class JStyleCitationProcessorTest {
     }
 
     @Test
-    void unresolvedNumericCitationsTakeNoNumberAndAreReportedOnce() throws IOException {
+    void unresolvedNumericCitationsTakeNoNumberAndAreReportedOnce() throws Exception {
         BibEntry resolved = entry("resolved", "Doe, Jane", "2003", "Resolved work");
         CitationGroup unresolved = group("unresolved", CitationType.AUTHORYEAR_PAR, new Citation("missing"));
         CitationGroup mixed = group("mixed", CitationType.AUTHORYEAR_PAR, new Citation("resolved"), new Citation("missing"));
@@ -172,7 +172,7 @@ class JStyleCitationProcessorTest {
     }
 
     @Test
-    void pageInfoStaysWithItsCitationWhenPresentationOrderChanges() throws IOException {
+    void pageInfoStaysWithItsCitationWhenPresentationOrderChanges() throws Exception {
         BibEntry later = entry("later", "Alpha, Alice", "2024", "Later work");
         BibEntry earlier = entry("earlier", "Zebra, Zoe", "2020", "Earlier work");
         Citation laterCitation = new Citation("later");
@@ -189,7 +189,7 @@ class JStyleCitationProcessorTest {
 
     @Test
         // [utest->req~openoffice.narrative-citations~1]
-    void numericNormalAndNarrativeGroupsShareNumbersWithoutCompressingAuthors() throws IOException {
+    void numericNormalAndNarrativeGroupsShareNumbersWithoutCompressingAuthors() throws Exception {
         CitationGroups groups = groupsInOrder(
                 group("normal", CitationType.AUTHORYEAR_PAR, new Citation("smith")),
                 group("narrative", CitationType.AUTHORYEAR_INTEXT, new Citation("smith"), new Citation("doe"), new Citation("brown")),
@@ -207,7 +207,7 @@ class JStyleCitationProcessorTest {
 
     @ParameterizedTest
     @ValueSource(booleans = {false, true})
-    void numericNarrativeOmitsAuthorSeparatorAndMarkupWhenAuthorAndEditorAreMissing(boolean authorMarkup) throws IOException {
+    void numericNarrativeOmitsAuthorSeparatorAndMarkupWhenAuthorAndEditorAreMissing(boolean authorMarkup) throws Exception {
         JStyle style = numericStyle();
         style.getCitProperties().put("InTextYearSeparator", " :: ");
         style.getCitProperties().put("AuthorsPartMarkupBefore", authorMarkup ? "<b>" : "");
@@ -224,7 +224,7 @@ class JStyleCitationProcessorTest {
 
     @ParameterizedTest
     @ValueSource(booleans = {false, true})
-    void numericNarrativeKeepsLocalAuthorOrderAndBibliographyNumberAssociation(boolean sortByPosition) throws IOException {
+    void numericNarrativeKeepsLocalAuthorOrderAndBibliographyNumberAssociation(boolean sortByPosition) throws Exception {
         JStyle style = numericStyle();
         style.getProperties().put("IsSortByPosition", sortByPosition);
         CitationGroup narrative = group("narrative", CitationType.AUTHORYEAR_INTEXT, new Citation("later"), new Citation("earlier"));
@@ -244,7 +244,7 @@ class JStyleCitationProcessorTest {
 
     @ParameterizedTest
     @ValueSource(ints = {-1, 0, 1, 2})
-    void numericNarrativeKeepsEachPageSlotWithItsAuthorAndNumber(int pageSlot) throws IOException {
+    void numericNarrativeKeepsEachPageSlotWithItsAuthorAndNumber(int pageSlot) throws Exception {
         Citation later = new Citation("later");
         Citation earlier = new Citation("earlier");
         if (pageSlot == 0 || pageSlot == 2) {
@@ -270,7 +270,7 @@ class JStyleCitationProcessorTest {
     }
 
     @Test
-    void numericNarrativeUsesResolvedAuthorFieldsAndEditorFallback() throws IOException {
+    void numericNarrativeUsesResolvedAuthorFieldsAndEditorFallback() throws Exception {
         BibEntry parent = entry("parent", "{Research and Development}", "2020", "Parent");
         BibEntry child = new BibEntry().withCitationKey("child").withField(StandardField.CROSSREF, "parent");
         BibEntry edited = new BibEntry().withCitationKey("edited").withField(StandardField.EDITOR, "von Neumann, John and Doe, Jane")
@@ -283,7 +283,7 @@ class JStyleCitationProcessorTest {
     }
 
     @Test
-    void numericNarrativeReusesCustomAuthorRulesOnFirstAndRepeatedAppearances() throws IOException {
+    void numericNarrativeReusesCustomAuthorRulesOnFirstAndRepeatedAppearances() throws Exception {
         JStyle style = numericStyle();
         style.getCitProperties().put("AuthorField", "editor/author");
         style.getCitProperties().put("MaxAuthors", 2);
@@ -320,7 +320,7 @@ class JStyleCitationProcessorTest {
     }
 
     @Test
-    void numericNarrativeKeepsUnresolvedKeysLiteralWithoutConsumingNumbers() throws IOException {
+    void numericNarrativeKeepsUnresolvedKeysLiteralWithoutConsumingNumbers() throws Exception {
         JStyle style = numericStyle();
         style.getCitProperties().put("CitationSeparator", " | ");
         style.getCitProperties().put("CitationGroupMarkupBefore", "<i>");
@@ -337,7 +337,7 @@ class JStyleCitationProcessorTest {
     }
 
     @Test
-    void authorYearLettersFollowFirstAppearanceRatherThanBibliographySortOrder() throws IOException {
+    void authorYearLettersFollowFirstAppearanceRatherThanBibliographySortOrder() throws Exception {
         BibEntry first = entry("first", "Doe, Jane", "2003", "Zebra title");
         BibEntry second = entry("second", "Doe, Jane", "2003", "Alpha title");
         CitationGroups groups = groupsInOrder(
@@ -352,7 +352,7 @@ class JStyleCitationProcessorTest {
     }
 
     @Test
-    void addingConflictingAuthorYearCitationChangesPreviouslyRenderedLabel() throws IOException {
+    void addingConflictingAuthorYearCitationChangesPreviouslyRenderedLabel() throws Exception {
         BibEntry first = entry("first", "Doe, Jane", "2003", "First work");
         BibEntry second = entry("second", "Doe, Jane", "2003", "Second work");
         BibDatabase database = new BibDatabase(List.of(first, second));
@@ -369,7 +369,7 @@ class JStyleCitationProcessorTest {
     }
 
     @Test
-    void authorYearCitationTypesAndPageInfoRemainIndependentAcrossGroups() throws IOException {
+    void authorYearCitationTypesAndPageInfoRemainIndependentAcrossGroups() throws Exception {
         BibEntry entry = entry("doe", "Doe, Jane", "2003", "A work");
         List<CitationType> types = List.of(CitationType.AUTHORYEAR_PAR, CitationType.AUTHORYEAR_INTEXT, CitationType.AUTHORYEAR_NOPAR, CitationType.AUTHOR_ONLY, CitationType.YEAR_ONLY);
         CitationGroup[] citationGroups = types.stream().map(type -> {

@@ -22,7 +22,7 @@ class MarkFormatIsolationTest {
 
     @ParameterizedTest
     @MethodSource("markCases")
-    void canonicalMarksPreserveCitationKeyCharacters(String legacyName, List<String> keys, String uid, CitationType type) throws JabRefMarkCodecException {
+    void canonicalMarksPreserveCitationKeyCharacters(String legacyName, List<String> keys, String uid, CitationType type) throws Exception {
         StringJoiner names = new StringJoiner(", ");
         keys.forEach(key -> names.add("JABREF_" + key));
         String wireType = switch (type) {

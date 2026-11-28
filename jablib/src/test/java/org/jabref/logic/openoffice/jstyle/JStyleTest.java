@@ -1,6 +1,5 @@
 package org.jabref.logic.openoffice.jstyle;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -43,7 +42,7 @@ class JStyleTest {
     private final JournalAbbreviationRepository abbreviationRepository = mock(JournalAbbreviationRepository.class);
 
     @Test
-    void authorYear() throws IOException {
+    void authorYear() throws Exception {
         JStyle style = new JStyle(JStyleLoader.DEFAULT_AUTHORYEAR_STYLE_PATH, layoutFormatterPreferences, abbreviationRepository);
         assertTrue(style.isValid());
         assertTrue(style.isInternalStyle());
@@ -57,7 +56,7 @@ class JStyleTest {
     }
 
     @Test
-    void numerical() throws IOException {
+    void numerical() throws Exception {
         JStyle style = new JStyle(
                 JStyleLoader.DEFAULT_NUMERICAL_STYLE_PATH,
                 layoutFormatterPreferences,
@@ -72,7 +71,7 @@ class JStyleTest {
     }
 
     @Test
-    void citationKeyModeOverridesEffectiveNumberingWithoutChangingRawPreference() throws IOException {
+    void citationKeyModeOverridesEffectiveNumberingWithoutChangingRawPreference() throws Exception {
         JStyle style = new JStyle(JStyleLoader.DEFAULT_NUMERICAL_STYLE_PATH, layoutFormatterPreferences, abbreviationRepository);
         style.getCitProperties().put("BibTeXKeyCitations", true);
 
@@ -173,7 +172,7 @@ class JStyleTest {
     // endregion
 
     @Test
-    void getNumCitationMarker() throws IOException {
+    void getNumCitationMarker() throws Exception {
         JStyle style = new JStyle(
                 JStyleLoader.DEFAULT_NUMERICAL_STYLE_PATH,
                 layoutFormatterPreferences,
@@ -193,7 +192,7 @@ class JStyleTest {
     }
 
     @Test
-    void getNumCitationMarkerUndefined() throws IOException {
+    void getNumCitationMarkerUndefined() throws Exception {
         JStyle style = new JStyle(
                 JStyleLoader.DEFAULT_NUMERICAL_STYLE_PATH,
                 layoutFormatterPreferences,
@@ -243,7 +242,7 @@ class JStyleTest {
     }
 
     @Test
-    void getCitProperty() throws IOException {
+    void getCitProperty() throws Exception {
         JStyle style = new JStyle(
                 JStyleLoader.DEFAULT_NUMERICAL_STYLE_PATH,
                 layoutFormatterPreferences,
@@ -264,7 +263,7 @@ class JStyleTest {
     }
 
     @Test
-    void getCitationMarker() throws IOException {
+    void getCitationMarker() throws Exception {
         JStyle style = new JStyle(
                 JStyleLoader.DEFAULT_NUMERICAL_STYLE_PATH,
                 layoutFormatterPreferences,
@@ -306,7 +305,7 @@ class JStyleTest {
     }
 
     @Test
-    void layout() throws IOException {
+    void layout() throws Exception {
         JStyle style = new JStyle(
                 JStyleLoader.DEFAULT_NUMERICAL_STYLE_PATH,
                 layoutFormatterPreferences,
@@ -336,7 +335,7 @@ class JStyleTest {
     }
 
     @Test
-    void institutionAuthor() throws IOException {
+    void institutionAuthor() throws Exception {
         JStyle style = new JStyle(
                 JStyleLoader.DEFAULT_NUMERICAL_STYLE_PATH,
                 layoutFormatterPreferences,
@@ -357,7 +356,7 @@ class JStyleTest {
     }
 
     @Test
-    void vonAuthor() throws IOException {
+    void vonAuthor() throws Exception {
         JStyle style = new JStyle(
                 JStyleLoader.DEFAULT_NUMERICAL_STYLE_PATH,
                 layoutFormatterPreferences,
@@ -378,7 +377,7 @@ class JStyleTest {
     }
 
     @Test
-    void institutionAuthorMarker() throws IOException {
+    void institutionAuthorMarker() throws Exception {
         JStyle style = new JStyle(
                 JStyleLoader.DEFAULT_NUMERICAL_STYLE_PATH,
                 layoutFormatterPreferences,
@@ -400,7 +399,7 @@ class JStyleTest {
     }
 
     @Test
-    void vonAuthorMarker() throws IOException {
+    void vonAuthorMarker() throws Exception {
         JStyle style = new JStyle(
                 JStyleLoader.DEFAULT_NUMERICAL_STYLE_PATH,
                 layoutFormatterPreferences,
@@ -423,7 +422,7 @@ class JStyleTest {
     }
 
     @Test
-    void nullAuthorMarker() throws IOException {
+    void nullAuthorMarker() throws Exception {
         JStyle style = new JStyle(
                 JStyleLoader.DEFAULT_NUMERICAL_STYLE_PATH,
                 layoutFormatterPreferences,
@@ -444,7 +443,7 @@ class JStyleTest {
     }
 
     @Test
-    void nullYearMarker() throws IOException {
+    void nullYearMarker() throws Exception {
         JStyle style = new JStyle(
                 JStyleLoader.DEFAULT_NUMERICAL_STYLE_PATH,
                 layoutFormatterPreferences,
@@ -465,7 +464,7 @@ class JStyleTest {
     }
 
     @Test
-    void emptyEntryMarker() throws IOException {
+    void emptyEntryMarker() throws Exception {
         JStyle style = new JStyle(
                 JStyleLoader.DEFAULT_NUMERICAL_STYLE_PATH,
                 layoutFormatterPreferences,
@@ -485,7 +484,7 @@ class JStyleTest {
     }
 
     @Test
-    void getCitationMarkerInParenthesisUniquefiers() throws IOException {
+    void getCitationMarkerInParenthesisUniquefiers() throws Exception {
         JStyle style = new JStyle(
                 JStyleLoader.DEFAULT_NUMERICAL_STYLE_PATH,
                 layoutFormatterPreferences,
@@ -529,7 +528,7 @@ class JStyleTest {
     }
 
     @Test
-    void getCitationMarkerInTextUniquefiers() throws IOException {
+    void getCitationMarkerInTextUniquefiers() throws Exception {
         JStyle style = new JStyle(
                 JStyleLoader.DEFAULT_NUMERICAL_STYLE_PATH,
                 layoutFormatterPreferences,
@@ -573,7 +572,7 @@ class JStyleTest {
     }
 
     @Test
-    void getCitationMarkerInParenthesisUniquefiersThreeSameAuthor() throws IOException {
+    void getCitationMarkerInParenthesisUniquefiersThreeSameAuthor() throws Exception {
         JStyle style = new JStyle(
                 JStyleLoader.DEFAULT_NUMERICAL_STYLE_PATH,
                 layoutFormatterPreferences,
@@ -616,7 +615,7 @@ class JStyleTest {
     }
 
     @Test
-    void getCitationMarkerInTextUniquefiersThreeSameAuthor() throws IOException {
+    void getCitationMarkerInTextUniquefiersThreeSameAuthor() throws Exception {
         JStyle style = new JStyle(
                 JStyleLoader.DEFAULT_NUMERICAL_STYLE_PATH,
                 layoutFormatterPreferences,
@@ -660,7 +659,7 @@ class JStyleTest {
 
     @Test
         // TODO: equals only work when initialized from file, not from reader
-    void equals() throws IOException {
+    void equals() throws Exception {
         JStyle style1 = new JStyle(
                 JStyleLoader.DEFAULT_NUMERICAL_STYLE_PATH,
                 layoutFormatterPreferences,
@@ -674,7 +673,7 @@ class JStyleTest {
 
     @Test
         // TODO: equals only work when initialized from file, not from reader
-    void notEquals() throws IOException {
+    void notEquals() throws Exception {
         JStyle style1 = new JStyle(
                 JStyleLoader.DEFAULT_NUMERICAL_STYLE_PATH,
                 layoutFormatterPreferences,
@@ -687,7 +686,7 @@ class JStyleTest {
     }
 
     @Test
-    void compareToEqual() throws IOException {
+    void compareToEqual() throws Exception {
         JStyle style1 = new JStyle(
                 JStyleLoader.DEFAULT_NUMERICAL_STYLE_PATH,
                 layoutFormatterPreferences,
@@ -700,7 +699,7 @@ class JStyleTest {
     }
 
     @Test
-    void compareToNotEqual() throws IOException {
+    void compareToNotEqual() throws Exception {
         JStyle style1 = new JStyle(
                 JStyleLoader.DEFAULT_NUMERICAL_STYLE_PATH,
                 layoutFormatterPreferences,
@@ -714,7 +713,7 @@ class JStyleTest {
     }
 
     @Test
-    void emptyStringPropertyAndOxfordComma() throws IOException {
+    void emptyStringPropertyAndOxfordComma() throws Exception {
         JStyle style = new JStyle("test.jstyle", layoutFormatterPreferences, abbreviationRepository);
         Map<BibEntry, BibDatabase> entryDBMap = new HashMap<>();
         List<BibEntry> entries = new ArrayList<>();
@@ -734,13 +733,13 @@ class JStyleTest {
     }
 
     @Test
-    void isValidWithDefaultSectionAtTheStart() throws IOException {
+    void isValidWithDefaultSectionAtTheStart() throws Exception {
         JStyle style = new JStyle("testWithDefaultLayoutFirst.jstyle", layoutFormatterPreferences, abbreviationRepository);
         assertTrue(style.isValid());
     }
 
     @Test
-    void getCitationMarkerJoinFirst() throws IOException {
+    void getCitationMarkerJoinFirst() throws Exception {
         JStyle style = new JStyle(
                 JStyleLoader.DEFAULT_NUMERICAL_STYLE_PATH,
                 layoutFormatterPreferences,
@@ -998,7 +997,7 @@ class JStyleTest {
                                                                   CitationType citationType,
                                                                   String[] uniquefiers,
                                                                   Boolean[] isFirstAppearanceOfSource,
-                                                                  String[] pageInfos) throws IOException {
+                                                                  String[] pageInfos) throws Exception {
         JStyle style = new JStyle(JStyleLoader.DEFAULT_AUTHORYEAR_STYLE_PATH, layoutFormatterPreferences, abbreviationRepository);
 
         String actual = getCitationMarkerForType(

@@ -1,6 +1,5 @@
 package org.jabref.gui.dialogs;
 
-import java.io.IOException;
 import java.nio.file.DirectoryNotEmptyException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -86,7 +85,7 @@ class BackupUIManagerTest extends JavaFxTest {
     }
 
     @Test
-    void failedRestoreShowsBackupPathAndCause(@TempDir Path tempDir) throws IOException {
+    void failedRestoreShowsBackupPathAndCause(@TempDir Path tempDir) throws Exception {
         Path backupDir = tempDir.resolve("backups");
         when(preferences.getFilePreferences().getBackupDirectory()).thenReturn(backupDir);
         when(dialogService.showCustomDialogAndWait(any(BackupResolverDialog.class)))
@@ -119,7 +118,7 @@ class BackupUIManagerTest extends JavaFxTest {
     /// absent altogether (welcome tab, startup). The review must not depend on it. The backup adds groups to a library
     /// without groups, which produces a metadata change and a group change; accepting both has to install the groups.
     @Test
-    void reviewBackupAcceptingAllChangesWorksWithoutAnActiveTab(@TempDir Path tempDir) throws IOException {
+    void reviewBackupAcceptingAllChangesWorksWithoutAnActiveTab(@TempDir Path tempDir) throws Exception {
         Path backupDir = tempDir.resolve("backups");
         acceptAllChangesWhenReviewingBackup(backupDir);
 
@@ -163,7 +162,7 @@ class BackupUIManagerTest extends JavaFxTest {
     /// merge is recorded on a journal the tab never sees, the restored library looks saved and closes without asking.
     /// [utest->req~jabgui.autosaveandbackup.accepted-backup-changes-undoable~1]
     @Test
-    void loadedLibraryCanUndoAcceptedBackupChanges(@TempDir Path tempDir) throws IOException {
+    void loadedLibraryCanUndoAcceptedBackupChanges(@TempDir Path tempDir) throws Exception {
         Path backupDir = tempDir.resolve("backups");
         acceptAllChangesWhenReviewingBackup(backupDir);
 
@@ -213,7 +212,7 @@ class BackupUIManagerTest extends JavaFxTest {
     }
 
     @Test
-    void resolverDialogRaisesTabOfAffectedLibraryFirst(@TempDir Path tempDir) throws IOException {
+    void resolverDialogRaisesTabOfAffectedLibraryFirst(@TempDir Path tempDir) throws Exception {
         Path backupDir = tempDir.resolve("backups");
         when(preferences.getFilePreferences().getBackupDirectory()).thenReturn(backupDir);
         when(dialogService.showCustomDialogAndWait(any(BackupResolverDialog.class)))
@@ -243,7 +242,7 @@ class BackupUIManagerTest extends JavaFxTest {
     }
 
     @Test
-    void closingNestedBackupDialogRaisesOuterLibrary(@TempDir Path tempDir) throws IOException {
+    void closingNestedBackupDialogRaisesOuterLibrary(@TempDir Path tempDir) throws Exception {
         Path backupDir = tempDir.resolve("backups");
         when(preferences.getFilePreferences().getBackupDirectory()).thenReturn(backupDir);
         Path outerFile = tempDir.resolve("outer.bib");
@@ -278,7 +277,7 @@ class BackupUIManagerTest extends JavaFxTest {
     }
 
     @Test
-    void backupDialogKeepsItsLibrarySelectedWhenAnotherLibraryOpens(@TempDir Path tempDir) throws IOException {
+    void backupDialogKeepsItsLibrarySelectedWhenAnotherLibraryOpens(@TempDir Path tempDir) throws Exception {
         Path backupDir = tempDir.resolve("backups");
         when(preferences.getFilePreferences().getBackupDirectory()).thenReturn(backupDir);
         Path originalFile = tempDir.resolve("library.bib");
@@ -324,7 +323,7 @@ class BackupUIManagerTest extends JavaFxTest {
     }
 
     @Test
-    void backupResolverDialogShowsLibraryAndBackupSizes(@TempDir Path tempDir) throws IOException {
+    void backupResolverDialogShowsLibraryAndBackupSizes(@TempDir Path tempDir) throws Exception {
         Path originalFile = tempDir.resolve("library.bib");
         Files.write(originalFile, new byte[1024]);
         Path backupFile = BackupFileUtil.getPathForNewBackupFileAndCreateDirectory(originalFile, BackupFileType.BACKUP, tempDir.resolve("backups"));
@@ -388,7 +387,7 @@ class BackupUIManagerTest extends JavaFxTest {
     /// Accepting the backup file changes should prompt the user to save the file when closing JabRef.
     /// The [ParserResult#getChangedOnMigration] flag is what makes the opened library count as modified.
     @Test
-    void acceptingBackupPromptsSavingWhenClosing(@TempDir Path tempDir) throws IOException {
+    void acceptingBackupPromptsSavingWhenClosing(@TempDir Path tempDir) throws Exception {
         Path backupDir = tempDir.resolve("backups");
         LibraryTabContainer tabContainer = mock(LibraryTabContainer.class);
         when(tabContainer.getLibraryTabs()).thenReturn(FXCollections.emptyObservableList());
@@ -440,7 +439,7 @@ class BackupUIManagerTest extends JavaFxTest {
     /// Rejecting backup file changes should have no effect on the state of the file, so no save
     /// prompt should appear when closing because the file should still match the existing one on the disk.
     @Test
-    void rejectingBackupChangesDoesNotPromptSaveOnClosing(@TempDir Path tempDir) throws IOException {
+    void rejectingBackupChangesDoesNotPromptSaveOnClosing(@TempDir Path tempDir) throws Exception {
         Path backupDir = tempDir.resolve("backups");
         LibraryTabContainer tabContainer = mock(LibraryTabContainer.class);
         when(tabContainer.getLibraryTabs()).thenReturn(FXCollections.emptyObservableList());

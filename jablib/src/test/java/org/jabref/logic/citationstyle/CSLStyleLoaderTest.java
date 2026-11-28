@@ -39,7 +39,7 @@ import static org.mockito.Mockito.when;
 
 @Execution(ExecutionMode.SAME_THREAD)
 @Isolated("CSLStyleLoader maintains a shared static style registry")
-public class CSLStyleLoaderTest {
+class CSLStyleLoaderTest {
 
     @BeforeAll
     static void setup() {

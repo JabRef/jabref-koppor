@@ -266,7 +266,7 @@ class ImportHandlerTest {
 
     @Test
     @ExtendWith(JavaFxExtension.class)
-    void droppedInvalidBibFileShowsWarning(@TempDir Path directory) throws IOException {
+    void droppedInvalidBibFileShowsWarning(@TempDir Path directory) throws Exception {
         when(bibDatabaseContext.getDatabasePath()).thenReturn(Optional.empty());
         ImportHandler handler = Mockito.spy(importHandler);
         Mockito.doNothing().when(handler).importEntries(any());

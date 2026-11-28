@@ -53,28 +53,28 @@ class LayoutTest {
     }
 
     @Test
-    void entryTypeForUnknown() throws IOException {
+    void entryTypeForUnknown() throws Exception {
         BibEntry entry = new BibEntry(new UnknownEntryType("unknown")).withField(StandardField.AUTHOR, "test");
 
         assertEquals("Unknown", layout("\\bibtextype", entry));
     }
 
     @Test
-    void entryTypeForArticle() throws IOException {
+    void entryTypeForArticle() throws Exception {
         BibEntry entry = new BibEntry(StandardEntryType.Article).withField(StandardField.AUTHOR, "test");
 
         assertEquals("Article", layout("\\bibtextype", entry));
     }
 
     @Test
-    void entryTypeForMisc() throws IOException {
+    void entryTypeForMisc() throws Exception {
         BibEntry entry = new BibEntry(StandardEntryType.Misc).withField(StandardField.AUTHOR, "test");
 
         assertEquals("Misc", layout("\\bibtextype", entry));
     }
 
     @Test
-    void HTMLChar() throws IOException {
+    void HTMLChar() throws Exception {
         BibEntry entry = new BibEntry(StandardEntryType.Article).withField(StandardField.AUTHOR, "This\nis\na\ntext");
 
         String actual = layout("\\begin{author}\\format[HTMLChars]{\\author}\\end{author}", entry);
@@ -83,7 +83,7 @@ class LayoutTest {
     }
 
     @Test
-    void HTMLCharWithDoubleLineBreak() throws IOException {
+    void HTMLCharWithDoubleLineBreak() throws Exception {
         BibEntry entry = new BibEntry(StandardEntryType.Article).withField(StandardField.AUTHOR, "This\nis\na\n\ntext");
 
         String layoutText = layout("\\begin{author}\\format[HTMLChars]{\\author}\\end{author} ", entry);
@@ -92,7 +92,7 @@ class LayoutTest {
     }
 
     @Test
-    void nameFormatter() throws IOException {
+    void nameFormatter() throws Exception {
         BibEntry entry = new BibEntry(StandardEntryType.Article).withField(StandardField.AUTHOR, "Joe Doe and Jane, Moon");
 
         String layoutText = layout("\\begin{author}\\format[NameFormatter]{\\author}\\end{author}", entry);
@@ -101,7 +101,7 @@ class LayoutTest {
     }
 
     @Test
-    void HTMLCharsWithDotlessIAndTiled() throws IOException {
+    void HTMLCharsWithDotlessIAndTiled() throws Exception {
         BibEntry entry = new BibEntry(StandardEntryType.Article)
                 .withField(StandardField.ABSTRACT, "\\~{n} \\~n \\'i \\i \\i");
 
@@ -115,7 +115,7 @@ class LayoutTest {
     }
 
     @Test
-    void previewAbstractCanRenderLatexMathAsUnicodeBeforeHtmlEscaping() throws IOException {
+    void previewAbstractCanRenderLatexMathAsUnicodeBeforeHtmlEscaping() throws Exception {
         BibEntry entry = new BibEntry(StandardEntryType.Article)
                 .withField(StandardField.ABSTRACT, "Much progress has been made in classifying when the weak Lefschetz property holds for $A=\\mathbb{F}[x,y,z]/I$ where $\\text{char}(\\mathbb{F})=0$ and $I=(x^{d_{1}},y^{d_{2}},z^{d_{3}},x^{a_{1}}y^{a_{2}}z^{a_{3}})$.");
 
@@ -142,7 +142,7 @@ class LayoutTest {
                     \\begin{!editor&&author}\\format[HTMLChars]{\\author}\\end{{!editor&&author}\\begin{editor&&!author}\\format[HTMLChars]{\\editor} (eds.)\\end{editor&&!author} -> Author
                     """
     )
-    void beginConditionals(String layoutString, String expected) throws IOException {
+    void beginConditionals(String layoutString, String expected) throws Exception {
         BibEntry entry = new BibEntry(StandardEntryType.Misc)
                 .withField(StandardField.AUTHOR, "Author");
 
@@ -152,7 +152,7 @@ class LayoutTest {
 
     /// Test for http://discourse.jabref.org/t/the-wrapfilelinks-formatter/172 (the example in the help files)
     @Test
-    void wrapFileLinksExpandFile() throws IOException {
+    void wrapFileLinksExpandFile() throws Exception {
         BibEntry entry = new BibEntry(StandardEntryType.Article);
         entry.addFile(new LinkedFile("Test file", Path.of("encrypted.pdf"), "PDF"));
 
@@ -167,7 +167,7 @@ class LayoutTest {
     }
 
     @Test
-    void expandCommandIfTerminatedByMinus() throws IOException {
+    void expandCommandIfTerminatedByMinus() throws Exception {
         BibEntry entry = new BibEntry(StandardEntryType.Article).withField(StandardField.EDITION, "2");
 
         String layoutText = layout("\\edition-th ed.-", entry);
@@ -176,7 +176,7 @@ class LayoutTest {
     }
 
     @Test
-    void customNameFormatter() throws IOException {
+    void customNameFormatter() throws Exception {
         when(layoutFormatterPreferences.getNameFormatterPreferences()).thenReturn(
                 new NameFormatterPreferences(List.of("DCA"), List.of("1@*@{ll}@@2@1..1@{ff}{ll}@2..2@ and {ff}{l}@@*@*@more")));
         BibEntry entry = new BibEntry(StandardEntryType.Article).withField(StandardField.AUTHOR, "Joe Doe and Mary Jane");
@@ -187,7 +187,7 @@ class LayoutTest {
     }
 
     @Test
-    void annotatedField() throws IOException {
+    void annotatedField() throws Exception {
         UnknownField annotatedField = new UnknownField("author+an");
         BibEntry entry = new BibEntry(StandardEntryType.Article)
                 .withField(annotatedField, "1:corresponding,2:highlight")
@@ -199,7 +199,7 @@ class LayoutTest {
     }
 
     @Test
-    void xdataFieldsAreResolved() throws IOException {
+    void xdataFieldsAreResolved() throws Exception {
         BibEntry xdata = new BibEntry(new UnknownEntryType("xdata"))
                 .withCitationKey("CAT")
                 .withField(StandardField.PUBLISHER, "Addison-Wesley")

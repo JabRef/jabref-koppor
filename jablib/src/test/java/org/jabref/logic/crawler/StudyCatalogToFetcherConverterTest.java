@@ -1,6 +1,5 @@
 package org.jabref.logic.crawler;
 
-import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.Path;
@@ -49,7 +48,7 @@ class StudyCatalogToFetcherConverterTest {
     }
 
     @Test
-    void getActiveFetcherInstances() throws IOException, URISyntaxException {
+    void getActiveFetcherInstances() throws Exception {
         Path studyDefinition = tempRepositoryDirectory.resolve(StudyRepository.STUDY_DEFINITION_FILE_NAME);
         copyTestStudyDefinitionFileIntoDirectory(studyDefinition);
 

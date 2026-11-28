@@ -1,6 +1,5 @@
 package org.jabref;
 
-import java.io.IOException;
 import java.io.Reader;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -20,7 +19,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 class IconsPropertiesTest {
 
     @Test
-    void existenceOfIconImagesReferencedFromIconsProperties() throws IOException {
+    void existenceOfIconImagesReferencedFromIconsProperties() throws Exception {
         String folder = "src/main/resources/images/external";
         String iconsProperties = "Icons.properties";
         String iconsPropertiesPath = "src/main/resources/images/" + iconsProperties;

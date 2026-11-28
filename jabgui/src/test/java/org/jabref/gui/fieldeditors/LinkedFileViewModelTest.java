@@ -184,7 +184,7 @@ class LinkedFileViewModelTest {
     }
 
     @Test
-    void deleteWhenTrashRefusesTheFileReturnsFalseAndKeepsFile() throws IOException {
+    void deleteWhenTrashRefusesTheFileReturnsFalseAndKeepsFile() throws Exception {
         linkedFile = new LinkedFile("", tempFile, "");
         when(filePreferences.moveToTrash()).thenReturn(true);
         when(nativeDesktop.moveToTrashSupported()).thenReturn(true);
@@ -241,7 +241,7 @@ class LinkedFileViewModelTest {
             "true, Keeping URL.",
             "false, Removed."
     })
-    void downloadHtmlFileCausesWarningDisplay(Boolean keepHtmlLink, String warningSuffix) throws IOException {
+    void downloadHtmlFileCausesWarningDisplay(Boolean keepHtmlLink, String warningSuffix) throws Exception {
         when(filePreferences.shouldStoreFilesRelativeToBibFile()).thenReturn(true);
         when(filePreferences.getFileNamePattern()).thenReturn("[citationkey]");
         when(filePreferences.getFileDirectoryPattern()).thenReturn("[entrytype]");
@@ -299,7 +299,7 @@ class LinkedFileViewModelTest {
 
     // Tests if isGeneratedPathSameAsOriginal takes into consideration File directory pattern
     @Test
-    void isSamePathWithPattern() throws IOException {
+    void isSamePathWithPattern() throws Exception {
         linkedFile = new LinkedFile("desc", tempFile, "pdf");
         databaseContext = mock(BibDatabaseContext.class);
         when(filePreferences.getFileNamePattern()).thenReturn("[citationkey]");
@@ -323,7 +323,7 @@ class LinkedFileViewModelTest {
 
     @ParameterizedTest
     @ValueSource(booleans = {true, false})
-    void downloadPdfFileWhenLinkedFilePointsToPdfUrl(boolean keepHtml) throws IOException {
+    void downloadPdfFileWhenLinkedFilePointsToPdfUrl(boolean keepHtml) throws Exception {
         String serverUrl = serve("application/pdf", "%PDF-1.4\n%%EOF\n".getBytes(StandardCharsets.UTF_8));
         linkedFile = new LinkedFile(URLUtil.create(serverUrl), "pdf");
         // Needed Mockito stubbing methods to run test

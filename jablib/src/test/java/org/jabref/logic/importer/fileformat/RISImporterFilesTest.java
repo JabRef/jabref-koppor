@@ -4,8 +4,6 @@ import java.io.IOException;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 
-import org.jabref.logic.importer.ImportException;
-
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 
@@ -20,13 +18,13 @@ class RISImporterFilesTest {
 
     @ParameterizedTest
     @MethodSource("fileNames")
-    void isRecognizedFormat(String fileName) throws IOException {
+    void isRecognizedFormat(String fileName) throws Exception {
         ImporterTestEngine.testIsRecognizedFormat(new RisImporter(), fileName);
     }
 
     @ParameterizedTest
     @MethodSource("fileNames")
-    void importEntries(String fileName) throws ImportException, IOException {
+    void importEntries(String fileName) throws Exception {
         ImporterTestEngine.testImportEntries(new RisImporter(), fileName, FILE_ENDING);
     }
 }

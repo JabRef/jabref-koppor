@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.net.CookieHandler;
 import java.net.CookieManager;
 import java.net.CookiePolicy;
-import java.net.MalformedURLException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
@@ -76,7 +75,7 @@ class DownloadLinkedFileActionTest {
 
     // [utest->req~fetchers.fulltext-duplicate-replacement~1]
     @Test
-    void duplicateDownloadReplacesMissingLinkWithSurvivingFile() throws IOException {
+    void duplicateDownloadReplacesMissingLinkWithSurvivingFile() throws Exception {
         Path original = tempFolder.resolve("article.pdf");
         Path duplicate = tempFolder.resolve("article (1).pdf");
         Files.writeString(original, "%PDF-1.4\narticle");
@@ -95,7 +94,7 @@ class DownloadLinkedFileActionTest {
     }
 
     @Test
-    void duplicateHtmlReplacementPreservesExistingFileAndLinks() throws IOException {
+    void duplicateHtmlReplacementPreservesExistingFileAndLinks() throws Exception {
         Path original = tempFolder.resolve("paywall.html");
         Path duplicate = tempFolder.resolve("paywall (1).html");
         String html = "<html><body>Sign in to read this article</body></html>";
@@ -147,7 +146,7 @@ class DownloadLinkedFileActionTest {
     }
 
     @Test
-    void replacesLinkedFiles(@TempDir Path tempFolder) throws MalformedURLException {
+    void replacesLinkedFiles(@TempDir Path tempFolder) throws Exception {
         String url = "http://arxiv.org/pdf/1207.0408v1";
 
         LinkedFile linkedFile = new LinkedFile(URLUtil.create(url), "");
@@ -173,7 +172,7 @@ class DownloadLinkedFileActionTest {
 
     @ParameterizedTest
     @ValueSource(booleans = {true, false})
-    void doesntReplaceSourceURL(boolean keepHtml) throws IOException {
+    void doesntReplaceSourceURL(boolean keepHtml) throws Exception {
         String url = "http://arxiv.org/pdf/1207.0408v1";
 
         LinkedFile linkedFile = new LinkedFile(URLUtil.create(url), "");

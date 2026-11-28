@@ -7,7 +7,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
-import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
 import java.util.stream.Stream;
 
@@ -136,7 +135,7 @@ class JabRefCliPreferencesTest {
     }
 
     @Test
-    void suppliedPreferencesNodesKeepValuesAndChildNodesSeparate() throws BackingStoreException {
+    void suppliedPreferencesNodesKeepValuesAndChildNodesSeparate() throws Exception {
         Preferences root = Preferences.userRoot().node("/org/jabref-preferences-test-" + UUID.randomUUID());
         try {
             JabRefCliPreferences first = new JabRefCliPreferences(root.node("first"));
@@ -156,7 +155,7 @@ class JabRefCliPreferencesTest {
 
     @ParameterizedTest
     @ValueSource(booleans = {false, true})
-    void clearingInjectedPreferencesLeavesGlobalStoresIntact(boolean initializeSecrets) throws BackingStoreException, PasswordAccessException {
+    void clearingInjectedPreferencesLeavesGlobalStoresIntact(boolean initializeSecrets) throws Exception {
         Preferences node = Preferences.userRoot().node("/org/jabref-reset-test-" + UUID.randomUUID());
         Map<List<String>, String> secrets = new HashMap<>();
         secrets.put(List.of("org.jabref.proxy", "proxy"), "existing-proxy-password");
@@ -192,7 +191,7 @@ class JabRefCliPreferencesTest {
     }
 
     @Test
-    void clearingDefaultPreferencesStillClearsGlobalStores() throws BackingStoreException, PasswordAccessException {
+    void clearingDefaultPreferencesStillClearsGlobalStores() throws Exception {
         Preferences node = Preferences.userRoot().node("/org/jabref-default-reset-test-" + UUID.randomUUID());
         Preferences userRoot = mock(Preferences.class);
         when(userRoot.node("/org/jabref")).thenReturn(node);

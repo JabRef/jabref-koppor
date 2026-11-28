@@ -2,7 +2,6 @@ package org.jabref.logic.auxparser;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
@@ -11,7 +10,6 @@ import java.util.Set;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.jabref.logic.JabRefException;
 import org.jabref.logic.importer.ImportFormatPreferences;
 import org.jabref.model.database.BibDatabase;
 import org.jabref.model.database.BibDatabaseContext;
@@ -43,7 +41,7 @@ class AuxParserTest {
     }
 
     @Test
-    void normal() throws URISyntaxException, IOException, JabRefException {
+    void normal() throws Exception {
         try (InputStream originalStream = AuxParserTest.class.getResourceAsStream("origin.bib")) {
             Path auxFile = Path.of(AuxParserTest.class.getResource("paper.aux").toURI());
             final BibDatabaseContext bibDatabaseContext = BibDatabaseContext.of(originalStream, importFormatPreferences);
@@ -66,7 +64,7 @@ class AuxParserTest {
     }
 
     @Test
-    void twoArgMacro() throws URISyntaxException, IOException, JabRefException {
+    void twoArgMacro() throws Exception {
         // Result should be identical to that of testNormal
         try (InputStream originalStream = AuxParserTest.class.getResourceAsStream("origin.bib")) {
             Path auxFile = Path.of(AuxParserTest.class.getResource("papertwoargmacro.aux").toURI());
@@ -90,7 +88,7 @@ class AuxParserTest {
     }
 
     @Test
-    void notAllFound() throws URISyntaxException, IOException, JabRefException {
+    void notAllFound() throws Exception {
         try (InputStream originalStream = AuxParserTest.class.getResourceAsStream("origin.bib")) {
             Path auxFile = Path.of(AuxParserTest.class.getResource("badpaper.aux").toURI());
             final BibDatabaseContext bibDatabaseContext = BibDatabaseContext.of(originalStream, importFormatPreferences);
@@ -110,7 +108,7 @@ class AuxParserTest {
     }
 
     @Test
-    void duplicateBibDatabaseConfiguration() throws URISyntaxException, IOException, JabRefException {
+    void duplicateBibDatabaseConfiguration() throws Exception {
         try (InputStream originalStream = AuxParserTest.class.getResourceAsStream("config.bib")) {
             Path auxFile = Path.of(AuxParserTest.class.getResource("paper.aux").toURI());
             final BibDatabaseContext bibDatabaseContext = BibDatabaseContext.of(originalStream, importFormatPreferences);
@@ -124,7 +122,7 @@ class AuxParserTest {
     }
 
     @Test
-    void nestedAux() throws URISyntaxException, IOException, JabRefException {
+    void nestedAux() throws Exception {
         try (InputStream originalStream = AuxParserTest.class.getResourceAsStream("origin.bib")) {
             Path auxFile = Path.of(AuxParserTest.class.getResource("nested.aux").toURI());
             final BibDatabaseContext bibDatabaseContext = BibDatabaseContext.of(originalStream, importFormatPreferences);
@@ -144,7 +142,7 @@ class AuxParserTest {
     }
 
     @Test
-    void crossRef() throws URISyntaxException, IOException, JabRefException {
+    void crossRef() throws Exception {
         try (InputStream originalStream = AuxParserTest.class.getResourceAsStream("origin.bib")) {
             Path auxFile = Path.of(AuxParserTest.class.getResource("crossref.aux").toURI());
             final BibDatabaseContext bibDatabaseContext = BibDatabaseContext.of(originalStream, importFormatPreferences);
@@ -171,7 +169,7 @@ class AuxParserTest {
     }
 
     @Test
-    void strictParsingFailsWhenIncludedFileIsMissing(@TempDir Path directory) throws IOException {
+    void strictParsingFailsWhenIncludedFileIsMissing(@TempDir Path directory) throws Exception {
         Path main = Files.writeString(directory.resolve("main.aux"), """
                 \\citation{first}
                 \\@input{missing.aux}
@@ -183,7 +181,7 @@ class AuxParserTest {
     }
 
     @Test
-    void strictParsingReadsNestedCitationsAndStopsAtCycles(@TempDir Path directory) throws IOException {
+    void strictParsingReadsNestedCitationsAndStopsAtCycles(@TempDir Path directory) throws Exception {
         Path main = Files.writeString(directory.resolve("main.aux"), """
                 \\citation{first,*}
                 \\@input{nested.aux}
@@ -201,7 +199,7 @@ class AuxParserTest {
     }
 
     @Test
-    void strictParsingStopsWhenCancelledDuringReading(@TempDir Path directory) throws IOException {
+    void strictParsingStopsWhenCancelledDuringReading(@TempDir Path directory) throws Exception {
         Path aux = Files.writeString(directory.resolve("main.aux"), "\\citation{first}\n".repeat(100));
         AtomicInteger checkpoints = new AtomicInteger();
         DefaultAuxParser parser = new DefaultAuxParser(new BibDatabase());

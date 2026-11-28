@@ -6,7 +6,6 @@ import java.io.Reader;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 
-import org.jabref.logic.importer.ImportException;
 import org.jabref.logic.importer.ImportFormatPreferences;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -37,18 +36,18 @@ class ModsImporterFilesTest {
 
     @ParameterizedTest
     @MethodSource("fileNames")
-    void isRecognizedFormat(String fileName) throws IOException {
+    void isRecognizedFormat(String fileName) throws Exception {
         ImporterTestEngine.testIsRecognizedFormat(new ModsImporter(importFormatPreferences), fileName);
     }
 
     @ParameterizedTest
     @MethodSource("fileNames")
-    void importEntries(String fileName) throws ImportException, IOException {
+    void importEntries(String fileName) throws Exception {
         ImporterTestEngine.testImportEntries(new ModsImporter(importFormatPreferences), fileName, FILE_ENDING);
     }
 
     @Test
-    void rejectsExternalEntities() throws IOException {
+    void rejectsExternalEntities() throws Exception {
         String xmlWithExternalEntity = """
                 <!DOCTYPE modsCollection [<!ENTITY entity SYSTEM "file:///not-accessed">]>
                 <modsCollection><mods><titleInfo><title>&entity;</title></titleInfo></mods></modsCollection>

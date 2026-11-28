@@ -9,7 +9,6 @@ import org.jabref.logic.openoffice.ZoteroDocumentPreferences;
 import org.jabref.logic.openoffice.engine.storage.DocumentStyleStore;
 import org.jabref.logic.openoffice.uno.UnoUserDefinedProperty;
 
-import com.sun.star.lang.WrappedTargetException;
 import com.sun.star.text.XTextDocument;
 import org.jspecify.annotations.NullMarked;
 import org.junit.jupiter.api.Test;
@@ -32,7 +31,7 @@ class CslStyleResolverTest {
 
     @ParameterizedTest
     @ValueSource(strings = {"JSTYLE", "BST"})
-    void cslInferenceRejectsOtherStoredFamiliesWithoutReadingStaleZoteroPreferences(String family) throws WrappedTargetException {
+    void cslInferenceRejectsOtherStoredFamiliesWithoutReadingStaleZoteroPreferences(String family) throws Exception {
         try (MockedStatic<UnoUserDefinedProperty> properties = mockStatic(UnoUserDefinedProperty.class);
              MockedStatic<ZoteroDocumentPreferences> zotero = mockStatic(ZoteroDocumentPreferences.class)) {
             properties.when(() -> UnoUserDefinedProperty.getStringValue(document, DocumentStyleStore.PROPERTY_NAME))
@@ -49,7 +48,7 @@ class CslStyleResolverTest {
 
     @ParameterizedTest
     @CsvSource({"false, false", "false, true", "true, false", "true, true"})
-    void canonicalCslInferenceFindsBundledAndExternalStylesByPathOrUri(boolean external, boolean useUri) throws WrappedTargetException {
+    void canonicalCslInferenceFindsBundledAndExternalStylesByPathOrUri(boolean external, boolean useUri) throws Exception {
         CitationStyle expected = external ? externalCslStyle : cslStyle;
         String identity = useUri ? expected.getStyleId() : expected.getPath();
         try (MockedStatic<UnoUserDefinedProperty> properties = mockStatic(UnoUserDefinedProperty.class);
@@ -63,7 +62,7 @@ class CslStyleResolverTest {
     }
 
     @Test
-    void canonicalCslInferenceDoesNotReplaceAMissingStyleWithStaleZoteroPreferences() throws WrappedTargetException {
+    void canonicalCslInferenceDoesNotReplaceAMissingStyleWithStaleZoteroPreferences() throws Exception {
         try (MockedStatic<UnoUserDefinedProperty> properties = mockStatic(UnoUserDefinedProperty.class);
              MockedStatic<ZoteroDocumentPreferences> zotero = mockStatic(ZoteroDocumentPreferences.class)) {
             properties.when(() -> UnoUserDefinedProperty.getStringValue(document, DocumentStyleStore.PROPERTY_NAME))
@@ -78,7 +77,7 @@ class CslStyleResolverTest {
 
     @ParameterizedTest
     @ValueSource(strings = {"ZOTERO_PREF_1", "CSL_PREF_1"})
-    void nativeCslInferenceFindsExternalStyleByStoredUri(String property) throws WrappedTargetException {
+    void nativeCslInferenceFindsExternalStyleByStoredUri(String property) throws Exception {
         try (MockedStatic<UnoUserDefinedProperty> properties = mockStatic(UnoUserDefinedProperty.class)) {
             properties.when(() -> UnoUserDefinedProperty.getStringValue(document, property))
                       .thenReturn(Optional.of("<data><style id=\"https://example.org/styles/research\"/></data>"));
@@ -88,14 +87,14 @@ class CslStyleResolverTest {
     }
 
     @Test
-    void cslInferenceWithoutStoredStyleReturnsEmpty() throws WrappedTargetException {
+    void cslInferenceWithoutStoredStyleReturnsEmpty() throws Exception {
         try (MockedStatic<UnoUserDefinedProperty> _ = mockStatic(UnoUserDefinedProperty.class)) {
             assertEquals(Optional.empty(), resolver.resolve(document));
         }
     }
 
     @Test
-    void nativeCslInferenceWithUnavailableStyleReturnsEmpty() throws WrappedTargetException {
+    void nativeCslInferenceWithUnavailableStyleReturnsEmpty() throws Exception {
         try (MockedStatic<UnoUserDefinedProperty> properties = mockStatic(UnoUserDefinedProperty.class)) {
             properties.when(() -> UnoUserDefinedProperty.getStringValue(document, "ZOTERO_PREF_1"))
                       .thenReturn(Optional.of("<data><style id=\"https://example.org/styles/missing\"/></data>"));
@@ -105,7 +104,7 @@ class CslStyleResolverTest {
     }
 
     @Test
-    void cslInferenceUsesStylesAddedAfterResolverConstruction() throws WrappedTargetException {
+    void cslInferenceUsesStylesAddedAfterResolverConstruction() throws Exception {
         AtomicReference<List<CitationStyle>> availableStyles = new AtomicReference<>(List.of(cslStyle));
         CslStyleResolver liveResolver = new CslStyleResolver(availableStyles::get);
         try (MockedStatic<UnoUserDefinedProperty> properties = mockStatic(UnoUserDefinedProperty.class)) {

@@ -32,7 +32,7 @@ import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-public class CopyToTest {
+class CopyToTest {
 
     private final DialogService dialogService = spy(DialogService.class);
     private final StateManager stateManager = mock(StateManager.class);

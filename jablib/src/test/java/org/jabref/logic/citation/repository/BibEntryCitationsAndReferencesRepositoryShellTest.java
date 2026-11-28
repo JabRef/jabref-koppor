@@ -8,12 +8,12 @@ import java.util.random.RandomGenerator;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.field.StandardField;
 
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.parallel.Execution;
 import org.junit.jupiter.api.parallel.ExecutionMode;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @Execution(ExecutionMode.SAME_THREAD)
@@ -70,8 +70,8 @@ class BibEntryCitationsAndReferencesRepositoryShellTest {
                 citationsDAO,
                 new BibEntryRelationRepositoryMock()
         );
-        Assertions.assertFalse(bibEntryRelationsRepository.containsCitations(bibEntry));
-        Assertions.assertFalse(citations.isEmpty());
+        assertFalse(bibEntryRelationsRepository.containsCitations(bibEntry));
+        assertFalse(citations.isEmpty());
 
         // WHEN
         bibEntryRelationsRepository.addCitations(bibEntry, citations);
@@ -91,8 +91,8 @@ class BibEntryCitationsAndReferencesRepositoryShellTest {
                 new BibEntryRelationRepositoryMock(),
                 referencesDAO
         );
-        Assertions.assertFalse(bibEntryRelationsRepository.containsCitations(bibEntry));
-        Assertions.assertFalse(references.isEmpty());
+        assertFalse(bibEntryRelationsRepository.containsCitations(bibEntry));
+        assertFalse(references.isEmpty());
 
         // WHEN
         bibEntryRelationsRepository.addCitations(bibEntry, references);

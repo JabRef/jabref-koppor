@@ -1,7 +1,5 @@
 package org.jabref.logic.bst;
 
-import java.io.IOException;
-import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
@@ -28,7 +26,7 @@ class BstPreviewLayoutTest {
     private final BibDatabaseContext bibDatabaseContext = new BibDatabaseContext();
 
     @Test
-    void generatePreviewForSimpleEntryUsingAbbr() throws URISyntaxException {
+    void generatePreviewForSimpleEntryUsingAbbr() throws Exception {
         BstPreviewLayout bstPreviewLayout = new BstPreviewLayout(Path.of(BstPreviewLayoutTest.class.getResource("abbrv.bst").toURI()));
         BibEntry entry = new BibEntry().withField(StandardField.AUTHOR, "Oliver Kopp")
                                        .withField(StandardField.TITLE, "Thoughts on Development");
@@ -37,7 +35,7 @@ class BstPreviewLayoutTest {
     }
 
     @Test
-    void generatePreviewForEntryWithMathFormulaInTitle() throws URISyntaxException {
+    void generatePreviewForEntryWithMathFormulaInTitle() throws Exception {
         BstPreviewLayout bstPreviewLayout = new BstPreviewLayout(Path.of(BstPreviewLayoutTest.class.getResource("abbrv.bst").toURI()));
         BibEntry entry = new BibEntry(StandardEntryType.Misc)
                 .withField(StandardField.AUTHOR, "Jane Doe")
@@ -47,7 +45,7 @@ class BstPreviewLayoutTest {
     }
 
     @Test
-    void monthMayIsCorrectlyRendered() throws URISyntaxException {
+    void monthMayIsCorrectlyRendered() throws Exception {
         BstPreviewLayout bstPreviewLayout = new BstPreviewLayout(Path.of(BstPreviewLayoutTest.class.getResource("abbrv.bst").toURI()));
         BibEntry entry = new BibEntry().withField(StandardField.AUTHOR, "Oliver Kopp")
                                        .withField(StandardField.TITLE, "Thoughts on Development")
@@ -57,21 +55,21 @@ class BstPreviewLayoutTest {
     }
 
     @Test
-    void generatePreviewForSliceTheoremPaperUsingAbbr() throws URISyntaxException {
+    void generatePreviewForSliceTheoremPaperUsingAbbr() throws Exception {
         BstPreviewLayout bstPreviewLayout = new BstPreviewLayout(Path.of(BstPreviewLayoutTest.class.getResource("abbrv.bst").toURI()));
         String preview = bstPreviewLayout.generatePreview(getSliceTheoremPaper(), bibDatabaseContext);
         assertEquals("T.&nbsp;Diez. Slice theorem for fréchet group actions and covariant symplectic field theory. May 2014.", preview);
     }
 
     @Test
-    void generatePreviewForSliceTheoremPaperUsingIEEE() throws URISyntaxException {
+    void generatePreviewForSliceTheoremPaperUsingIEEE() throws Exception {
         BstPreviewLayout bstPreviewLayout = new BstPreviewLayout(Path.of(BstPreviewLayoutTest.class.getResource("IEEEtran.bst").toURI()));
         String preview = bstPreviewLayout.generatePreview(getSliceTheoremPaper(), bibDatabaseContext);
         assertEquals("T.&nbsp;Diez, \"Slice theorem for fréchet group actions and covariant symplectic field theory\" May 2014.", preview);
     }
 
     @Test
-    void mathSymbolsInBracedMathAreConvertedToUnicode() throws URISyntaxException {
+    void mathSymbolsInBracedMathAreConvertedToUnicode() throws Exception {
         BstPreviewLayout bstPreviewLayout = new BstPreviewLayout(Path.of(BstPreviewLayoutTest.class.getResource("abbrv.bst").toURI()));
         BibEntry entry = new BibEntry().withField(StandardField.AUTHOR, "Oliver Kopp")
                                        .withField(StandardField.TITLE, "{{$\\Sigma$}}{{$\\Delta$}} Modulator");
@@ -81,7 +79,7 @@ class BstPreviewLayoutTest {
 
     @ParameterizedTest
     @MethodSource
-    void generatePreviewHandlesInlineFormatting(String title, String expectedPreview) throws URISyntaxException {
+    void generatePreviewHandlesInlineFormatting(String title, String expectedPreview) throws Exception {
         BstPreviewLayout bstPreviewLayout = new BstPreviewLayout(Path.of(BstPreviewLayoutTest.class.getResource("abbrv.bst").toURI()));
         BibEntry entry = new BibEntry().withField(StandardField.AUTHOR, "Oliver Kopp")
                                        .withField(StandardField.TITLE, title);
@@ -120,7 +118,7 @@ class BstPreviewLayoutTest {
     }
 
     @Test
-    void journalEmphasizedByBstIsRenderedItalic() throws URISyntaxException {
+    void journalEmphasizedByBstIsRenderedItalic() throws Exception {
         BstPreviewLayout bstPreviewLayout = new BstPreviewLayout(Path.of(BstPreviewLayoutTest.class.getResource("abbrv.bst").toURI()));
         BibEntry entry = new BibEntry(StandardEntryType.Article)
                 .withField(StandardField.AUTHOR, "Karen A. Cooper")
@@ -132,7 +130,7 @@ class BstPreviewLayoutTest {
     }
 
     @Test
-    void unresolvableBracedMathIsKept() throws URISyntaxException {
+    void unresolvableBracedMathIsKept() throws Exception {
         BstPreviewLayout bstPreviewLayout = new BstPreviewLayout(Path.of(BstPreviewLayoutTest.class.getResource("abbrv.bst").toURI()));
         BibEntry entry = new BibEntry().withField(StandardField.AUTHOR, "Oliver Kopp")
                                        .withField(StandardField.TITLE, "{{$\\notacommand$}} Modulator");
@@ -141,7 +139,7 @@ class BstPreviewLayoutTest {
     }
 
     @Test
-    void unparsableBstShowsPreviewError(@TempDir Path tempDir) throws IOException {
+    void unparsableBstShowsPreviewError(@TempDir Path tempDir) throws Exception {
         Path invalidBst = tempDir.resolve("invalid.bst");
         Files.writeString(invalidBst, "}");
 
@@ -152,7 +150,7 @@ class BstPreviewLayoutTest {
     }
 
     @Test
-    void generatePreviewResolvesXDataFields() throws URISyntaxException {
+    void generatePreviewResolvesXDataFields() throws Exception {
         BstPreviewLayout bstPreviewLayout = new BstPreviewLayout(Path.of(BstPreviewLayoutTest.class.getResource("abbrv.bst").toURI()));
         BibEntry xdata = new BibEntry(new UnknownEntryType("xdata"))
                 .withCitationKey("CAT")
@@ -174,7 +172,7 @@ class BstPreviewLayoutTest {
     }
 
     @Test
-    void generatePreviewIgnoresLibraryPreambleWhenResolvingXDataFields() throws URISyntaxException {
+    void generatePreviewIgnoresLibraryPreambleWhenResolvingXDataFields() throws Exception {
         BstPreviewLayout bstPreviewLayout = new BstPreviewLayout(Path.of(BstPreviewLayoutTest.class.getResource("abbrv.bst").toURI()));
         BibEntry xdata = new BibEntry(new UnknownEntryType("xdata"))
                 .withCitationKey("CAT")

@@ -1,10 +1,8 @@
 package org.jabref.logic.importer.fetcher;
 
-import java.io.IOException;
 import java.net.URL;
 import java.util.Optional;
 
-import org.jabref.logic.importer.FetcherException;
 import org.jabref.logic.importer.ImporterPreferences;
 import org.jabref.logic.util.URLUtil;
 import org.jabref.model.entry.BibEntry;
@@ -21,7 +19,7 @@ import static org.mockito.Mockito.when;
 class UnpaywallFetcherTest {
 
     @Test
-    void findFullText() throws IOException, FetcherException {
+    void findFullText() throws Exception {
         ImporterPreferences importerPreferences = mock(ImporterPreferences.class);
         when(importerPreferences.getApiKey(UnpaywallFetcher.FETCHER_NAME)).thenReturn(Optional.of("test@example.org"));
         UnpaywallFetcher fetcher = new UnpaywallFetcher(importerPreferences);

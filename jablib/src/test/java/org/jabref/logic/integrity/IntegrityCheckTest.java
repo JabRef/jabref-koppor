@@ -1,6 +1,5 @@
 package org.jabref.logic.integrity;
 
-import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
@@ -103,7 +102,7 @@ class IntegrityCheckTest {
     }
 
     @Test
-    void fileCheckFindsFilesRelativeToBibFile(@TempDir Path testFolder) throws IOException {
+    void fileCheckFindsFilesRelativeToBibFile(@TempDir Path testFolder) throws Exception {
         Path bibFile = testFolder.resolve("lit.bib");
         Files.createFile(bibFile);
         Path pdfFile = testFolder.resolve("file.pdf");

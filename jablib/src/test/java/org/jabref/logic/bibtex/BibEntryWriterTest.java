@@ -1,6 +1,5 @@
 package org.jabref.logic.bibtex;
 
-import java.io.IOException;
 import java.io.StringWriter;
 import java.nio.file.Path;
 import java.util.List;
@@ -80,7 +79,7 @@ class BibEntryWriterTest {
     }
 
     @Test
-    void serialization() throws IOException {
+    void serialization() throws Exception {
         BibEntry entry = new BibEntry(StandardEntryType.Article)
                 // set required fields
                 .withField(StandardField.AUTHOR, "Foo Bar")
@@ -104,7 +103,7 @@ class BibEntryWriterTest {
     }
 
     @Test
-    void bibEntryTwoSpacesBeforeAndAfterKept() throws IOException {
+    void bibEntryTwoSpacesBeforeAndAfterKept() throws Exception {
         BibEntry entry = new BibEntry(StandardEntryType.Article)
                 .withField(StandardField.AUTHOR, "  two spaces before and after (before)  ")
                 .withChanged(true);
@@ -121,7 +120,7 @@ class BibEntryWriterTest {
     }
 
     @Test
-    void bibEntryNotModified() throws IOException {
+    void bibEntryNotModified() throws Exception {
         BibEntry entry = new BibEntry(StandardEntryType.Article)
                 .withField(StandardField.AUTHOR, "  two spaces before and after  ")
                 .withChanged(true);
@@ -134,7 +133,7 @@ class BibEntryWriterTest {
     }
 
     @Test
-    void writeOtherTypeTest() throws IOException {
+    void writeOtherTypeTest() throws Exception {
         BibEntry entry = new BibEntry(new UnknownEntryType("other"))
                 .withField(StandardField.COMMENT, "testentry")
                 .withCitationKey("test")
@@ -151,7 +150,7 @@ class BibEntryWriterTest {
     }
 
     @Test
-    void writeEntryWithFile() throws IOException {
+    void writeEntryWithFile() throws Exception {
         BibEntry entry = new BibEntry(StandardEntryType.Article);
         LinkedFile file = new LinkedFile("test", Path.of("/home/uers/test.pdf"), "PDF");
         entry.addFile(file);
@@ -167,7 +166,7 @@ class BibEntryWriterTest {
     }
 
     @Test
-    void writeEntryWithOrField() throws IOException {
+    void writeEntryWithOrField() throws Exception {
         BibEntry entry = new BibEntry(StandardEntryType.InBook)
                 // set a required OR field (author/editor)
                 .withField(StandardField.EDITOR, "Foo Bar")
@@ -191,7 +190,7 @@ class BibEntryWriterTest {
     }
 
     @Test
-    void writeEntryWithOrFieldBothFieldsPresent() throws IOException {
+    void writeEntryWithOrFieldBothFieldsPresent() throws Exception {
         BibEntry entry = new BibEntry(StandardEntryType.InBook)
                 // set a required OR field with both fields(author/editor)
                 .withField(StandardField.AUTHOR, "Foo Thor")
@@ -217,7 +216,7 @@ class BibEntryWriterTest {
     }
 
     @Test
-    void writeReallyUnknownTypeTest() throws IOException {
+    void writeReallyUnknownTypeTest() throws Exception {
         BibEntry entry = new BibEntry(new UnknownEntryType("ReallyUnknownType"))
                 .withField(StandardField.COMMENT, "testentry")
                 .withCitationKey("test")
@@ -580,7 +579,7 @@ class BibEntryWriterTest {
     }
 
     @Test
-    void constantMonthApril() throws IOException {
+    void constantMonthApril() throws Exception {
         BibEntry entry = new BibEntry(StandardEntryType.Misc)
                 .withField(StandardField.MONTH, "#apr#");
         // enable writing
@@ -597,7 +596,7 @@ class BibEntryWriterTest {
     }
 
     @Test
-    void monthApril() throws IOException {
+    void monthApril() throws Exception {
         BibEntry entry = new BibEntry(StandardEntryType.Misc)
                 .withField(StandardField.MONTH, "apr");
         // enable writing
@@ -666,7 +665,7 @@ class BibEntryWriterTest {
     }
 
     @Test
-    void doNotWriteEmptyFields() throws IOException {
+    void doNotWriteEmptyFields() throws Exception {
         BibEntry entry = new BibEntry(StandardEntryType.Article)
                 .withField(StandardField.AUTHOR, "  ")
                 .withField(StandardField.NOTE, "some note")
@@ -735,7 +734,7 @@ class BibEntryWriterTest {
     }
 
     @Test
-    void alphabeticSerialization() throws IOException {
+    void alphabeticSerialization() throws Exception {
         BibEntry entry = new BibEntry(StandardEntryType.Article)
                 // required fields
                 .withField(StandardField.AUTHOR, "Foo Bar")
@@ -768,7 +767,7 @@ class BibEntryWriterTest {
     }
 
     @Test
-    void write() throws IOException {
+    void write() throws Exception {
         BibEntry entry1 = new BibEntry(StandardEntryType.Article)
                 // required fields
                 .withField(StandardField.AUTHOR, "Journal Author")

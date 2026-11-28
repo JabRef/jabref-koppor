@@ -40,7 +40,7 @@ class CslRendererTest {
     private final BibEntryTypesManager entryTypesManager = new BibEntryTypesManager();
 
     @Test
-    void assignsDocumentNumbersForAStyleRequestingCollapsedRanges() throws RenderException {
+    void assignsDocumentNumbersForAStyleRequestingCollapsedRanges() throws Exception {
         RenderRequest request = request(List.of(group("first", CitationType.AUTHORYEAR_PAR, "a"), group("second", CitationType.AUTHORYEAR_PAR, "b"),
                         group("range", CitationType.AUTHORYEAR_PAR, "c", "d", "e")),
                 List.of(entry("a", "A"), entry("b", "B"), entry("c", "C"), entry("d", "D"), entry("e", "E")));
@@ -50,7 +50,7 @@ class CslRendererTest {
     }
 
     @Test
-    void reusesNumbersInNonconsecutiveClusters() throws RenderException {
+    void reusesNumbersInNonconsecutiveClusters() throws Exception {
         RenderRequest request = request(List.of(group("all", CitationType.AUTHORYEAR_PAR, "a", "b", "c", "d", "e"),
                         group("gaps", CitationType.AUTHORYEAR_PAR, "a", "c", "e")),
                 List.of(entry("a", "A"), entry("b", "B"), entry("c", "C"), entry("d", "D"), entry("e", "E")));
@@ -59,7 +59,7 @@ class CslRendererTest {
     }
 
     @Test
-    void citationAndBibliographyNumbersFollowTheSameSortedSet() throws RenderException {
+    void citationAndBibliographyNumbersFollowTheSameSortedSet() throws Exception {
         RenderRequest request = request(List.of(group("z", CitationType.AUTHORYEAR_PAR, "z"), group("a", CitationType.AUTHORYEAR_PAR, "a")),
                 List.of(entry("z", "Zebra"), entry("a", "Alpha")));
         RenderResult result = renderer(true, false).render(request);
@@ -70,7 +70,7 @@ class CslRendererTest {
     }
 
     @Test
-    void perGroupTypesDoNotRewriteOtherGroups() throws RenderException {
+    void perGroupTypesDoNotRewriteOtherGroups() throws Exception {
         RenderRequest request = request(List.of(group("normal", CitationType.AUTHORYEAR_PAR, "a"), group("narrative", CitationType.AUTHORYEAR_INTEXT, "a"),
                 group("empty", CitationType.INVISIBLE_CIT, "a")), List.of(entry("a", "A")));
 
@@ -78,7 +78,7 @@ class CslRendererTest {
     }
 
     @Test
-    void numericInTextPairsAuthorsWithSortedNumbersInStorageOrderIncludingRepeats() throws RenderException {
+    void numericInTextPairsAuthorsWithSortedNumbersInStorageOrderIncludingRepeats() throws Exception {
         RenderRequest request = request(List.of(group("normal", CitationType.AUTHORYEAR_PAR, "z", "a"),
                         group("narrative", CitationType.AUTHORYEAR_INTEXT, "z", "a", "z"), group("repeat", CitationType.AUTHORYEAR_PAR, "z")),
                 List.of(entry("a", "Alpha"), entry("z", "Zebra").withField(StandardField.AUTHOR, "Doe, John")));
@@ -92,7 +92,7 @@ class CslRendererTest {
     }
 
     @Test
-    void numericInTextKeepsInterleavedUnresolvedKeysWithoutConsumingNumbers() throws RenderException {
+    void numericInTextKeepsInterleavedUnresolvedKeysWithoutConsumingNumbers() throws Exception {
         RenderRequest request = request(List.of(group("normal", CitationType.AUTHORYEAR_PAR, "a"),
                         group("narrative", CitationType.AUTHORYEAR_INTEXT, "a", "missing", "b", "missing", "a"),
                         group("repeat", CitationType.AUTHORYEAR_PAR, "b")),
@@ -104,7 +104,7 @@ class CslRendererTest {
     }
 
     @Test
-    void numericInTextKeepsAuthorsOutsideSuperscriptMarkers() throws RenderException {
+    void numericInTextKeepsAuthorsOutsideSuperscriptMarkers() throws Exception {
         CitationStyle base = numericStyle(true, false);
         String source = base.getSource().replace(
                 "<layout prefix=\"[\" suffix=\"]\" delimiter=\", \"><text variable=\"citation-number\"/></layout>",
@@ -122,14 +122,14 @@ class CslRendererTest {
     // [utest->req~openoffice.csl-in-text-citations~1]
     @ParameterizedTest
     @MethodSource("authorCases")
-    void numericInTextUsesShortAuthorsThenEditorsThenTheKey(BibEntry entry, String expected) throws RenderException {
+    void numericInTextUsesShortAuthorsThenEditorsThenTheKey(BibEntry entry, String expected) throws Exception {
         RenderRequest request = request(List.of(group("narrative", CitationType.AUTHORYEAR_INTEXT, "key")), List.of(entry));
 
         assertEquals(List.of(expected + " [1]"), markers(request, renderer(false, false).render(request)));
     }
 
     @Test
-    void numericInTextEscapesTheFallbackKey() throws RenderException {
+    void numericInTextEscapesTheFallbackKey() throws Exception {
         String key = "<key>&";
         RenderRequest request = request(List.of(group("narrative", CitationType.AUTHORYEAR_INTEXT, key)), List.of(new BibEntry().withCitationKey(key)));
 
@@ -138,7 +138,7 @@ class CslRendererTest {
 
     @ParameterizedTest
     @EnumSource(value = StandardField.class, names = {"AUTHOR", "EDITOR"})
-    void numericInTextResolvesInheritedAuthorsAndEditorsInTheirOwnLibrary(StandardField field) throws RenderException {
+    void numericInTextResolvesInheritedAuthorsAndEditorsInTheirOwnLibrary(StandardField field) throws Exception {
         BibEntry child = new BibEntry().withCitationKey("child").withField(StandardField.CROSSREF, "parent");
         BibEntry parent = new BibEntry().withCitationKey("parent").withField(field, "#authors#");
         BibDatabase library = new BibDatabase(List.of(child, parent));
@@ -156,7 +156,7 @@ class CslRendererTest {
     // [utest->req~openoffice.csl-in-text-citations~1]
     @ParameterizedTest
     @ValueSource(strings = {", ", " "})
-    void authorYearInTextConvertsPlainFormsWithoutChangingStoredTypes(String delimiter) throws RenderException {
+    void authorYearInTextConvertsPlainFormsWithoutChangingStoredTypes(String delimiter) throws Exception {
         CitationStyle style = authorYearStyle("""
                 <layout prefix="(" suffix=")" delimiter="; ">
                   <names variable="author"><name form="short"/></names>
@@ -173,7 +173,7 @@ class CslRendererTest {
     }
 
     @Test
-    void authorYearInTextConvertsAnExplicitNoDateTerm() throws RenderException {
+    void authorYearInTextConvertsAnExplicitNoDateTerm() throws Exception {
         CitationStyle style = authorYearStyle("""
                 <layout prefix="(" suffix=")" delimiter="; ">
                   <names variable="author"><name form="short"/></names>
@@ -190,7 +190,7 @@ class CslRendererTest {
     }
 
     @Test
-    void authorYearInTextPreservesSquareBracketsAndTheYearSuffix() throws RenderException {
+    void authorYearInTextPreservesSquareBracketsAndTheYearSuffix() throws Exception {
         CitationStyle style = authorYearStyle("""
                 <layout prefix="[" suffix="]" delimiter="; ">
                   <names variable="author"><name form="short"/></names>
@@ -204,7 +204,7 @@ class CslRendererTest {
 
     @ParameterizedTest
     @MethodSource("markedUpAuthorYearLayouts")
-    void authorYearInTextLeavesMarkupContainingFormsUnchanged(String layout, String expected) throws RenderException {
+    void authorYearInTextLeavesMarkupContainingFormsUnchanged(String layout, String expected) throws Exception {
         RenderRequest request = request(List.of(group("normal", CitationType.AUTHORYEAR_PAR, "a"), group("narrative", CitationType.AUTHORYEAR_INTEXT, "a")), List.of(entry("a", "A")));
 
         assertEquals(List.of(expected, expected), markers(request, new CslRenderer(authorYearStyle(layout), entryTypesManager).render(request)));
@@ -214,7 +214,7 @@ class CslRendererTest {
     @ValueSource(strings = {"(Smith, forthcoming)", "(Smith, 2020; Jones, 2021)", "(Smith, 2020, Jones, 2021)", "(Smith 2020 and Jones 2021)",
             "(Smith, 2020, 2021)", "(Smith, 2020, forthcoming)", "(Smith, n.d., Jones, n.d.)", "(Smith, forthcoming, Jones, 2021)", "(Smith, Jones, 2020)",
             "(Smith, 2020]", "[Smith, 2020)", "Smith, 2020", "(Smith, 2020"})
-    void authorYearInTextLeavesUnknownMultiSourceAndUnpairedFormsUnchanged(String text) throws RenderException {
+    void authorYearInTextLeavesUnknownMultiSourceAndUnpairedFormsUnchanged(String text) throws Exception {
         CitationStyle style = authorYearStyle("<layout><text value=\"" + text + "\"/></layout>");
         RenderRequest request = request(List.of(group("narrative", CitationType.AUTHORYEAR_INTEXT, "a")), List.of(entry("a", "A")));
 
@@ -222,7 +222,7 @@ class CslRendererTest {
     }
 
     @Test
-    void invisibleCitationsParticipateInSetWideNumbering() throws RenderException {
+    void invisibleCitationsParticipateInSetWideNumbering() throws Exception {
         RenderRequest request = request(List.of(group("empty", CitationType.INVISIBLE_CIT, "a"), group("normal", CitationType.AUTHORYEAR_PAR, "b")),
                 List.of(entry("a", "A"), entry("b", "B")));
 
@@ -230,7 +230,7 @@ class CslRendererTest {
     }
 
     @Test
-    void unresolvedCitationsRemainVisibleWithoutConsumingNumbers() throws RenderException {
+    void unresolvedCitationsRemainVisibleWithoutConsumingNumbers() throws Exception {
         RenderRequest request = request(List.of(group("mixed", CitationType.AUTHORYEAR_PAR, "a", "missing", "b"),
                 group("repeat", CitationType.AUTHORYEAR_PAR, "missing", "b")), List.of(entry("a", "A"), entry("b", "B")));
         RenderResult result = renderer(false, false).render(request);
@@ -240,7 +240,7 @@ class CslRendererTest {
     }
 
     @Test
-    void unsupportedTypesAreApproximatedWithoutMutatingStoredTypesOrPageInfo() throws RenderException {
+    void unsupportedTypesAreApproximatedWithoutMutatingStoredTypesOrPageInfo() throws Exception {
         CitationGroup group = group("unsupported", CitationType.AUTHORYEAR_NOPAR, "a");
         group.citationsInStorageOrder.getFirst().setPageInfo(Optional.of(OOText.fromString("p. 5")));
         RenderRequest request = request(List.of(group), List.of(entry("a", "A")));
@@ -251,7 +251,7 @@ class CslRendererTest {
     }
 
     @Test
-    void skippingBibliographyDoesNotChangeSortedNumbers() throws RenderException {
+    void skippingBibliographyDoesNotChangeSortedNumbers() throws Exception {
         RenderRequest original = request(List.of(group("z", CitationType.AUTHORYEAR_PAR, "z"), group("a", CitationType.AUTHORYEAR_PAR, "a")),
                 List.of(entry("z", "Zebra"), entry("a", "Alpha")));
         RenderRequest request = new RenderRequest(original.groupsInDocumentOrder(), original.databases(),
@@ -262,7 +262,7 @@ class CslRendererTest {
     }
 
     @Test
-    void preservesTheAlphanumericHelper() throws RenderException {
+    void preservesTheAlphanumericHelper() throws Exception {
         CitationStyle base = numericStyle(false, false);
         CitationStyle alpha = new CitationStyle("alpha.csl", "alpha", "in-text",
                 "DIN 1505-2 (alphanumeric, Deutsch) - standard superseded by ISO-690", "", false, true, false, false, base.getSource(), false);
@@ -282,7 +282,7 @@ class CslRendererTest {
     // [utest->req~openoffice.csl-partial-citations~1]
     @ParameterizedTest
     @MethodSource("partialStyles")
-    void partialModesUseFixedJabRefFormattingRegardlessOfStyle(CitationStyle style) throws RenderException {
+    void partialModesUseFixedJabRefFormattingRegardlessOfStyle(CitationStyle style) throws Exception {
         RenderRequest request = request(List.of(group("author", CitationType.AUTHOR_ONLY, "a"), group("year", CitationType.YEAR_ONLY, "a")),
                 List.of(entry("a", "A").withField(StandardField.AUTHOR, "Smith, Jane and Jones, Alex")));
 
@@ -291,7 +291,7 @@ class CslRendererTest {
 
     @ParameterizedTest
     @MethodSource("authorCases")
-    void authorOnlyUsesShortAuthorsThenEditorsThenTheKey(BibEntry entry, String expected) throws RenderException {
+    void authorOnlyUsesShortAuthorsThenEditorsThenTheKey(BibEntry entry, String expected) throws Exception {
         RenderRequest request = request(List.of(group("author", CitationType.AUTHOR_ONLY, "key")), List.of(entry));
 
         assertEquals(List.of(expected), markers(request, renderer(false, false).render(request)));
@@ -299,7 +299,7 @@ class CslRendererTest {
 
     @ParameterizedTest
     @MethodSource("yearCases")
-    void yearOnlyUsesResolvedYearThenDateThenTheKey(BibEntry entry, String expected) throws RenderException {
+    void yearOnlyUsesResolvedYearThenDateThenTheKey(BibEntry entry, String expected) throws Exception {
         RenderRequest request = request(List.of(group("year", CitationType.YEAR_ONLY, "key")), List.of(entry));
 
         assertEquals(List.of(expected), markers(request, renderer(false, false).render(request)));
@@ -307,7 +307,7 @@ class CslRendererTest {
 
     @ParameterizedTest
     @EnumSource(value = CitationType.class, names = {"AUTHOR_ONLY", "YEAR_ONLY"})
-    void partialGroupsPreserveOrderRepeatsAndUnresolvedKeys(CitationType type) throws RenderException {
+    void partialGroupsPreserveOrderRepeatsAndUnresolvedKeys(CitationType type) throws Exception {
         RenderRequest request = request(List.of(group("mixed", type, "a", "missing", "b", "a"), group("repeat", type, "b", "missing")),
                 List.of(entry("a", "A"), entry("b", "B").withField(StandardField.AUTHOR, "Jones, Alex").withField(StandardField.YEAR, "2021")));
         RenderResult result = renderer(false, false).render(request);
@@ -320,7 +320,7 @@ class CslRendererTest {
 
     @ParameterizedTest
     @EnumSource(value = CitationType.class, names = {"AUTHOR_ONLY", "YEAR_ONLY"})
-    void partialModesDoNotMutateStoredTypesPageInfoNumbersOrMarkers(CitationType type) throws RenderException {
+    void partialModesDoNotMutateStoredTypesPageInfoNumbersOrMarkers(CitationType type) throws Exception {
         CitationGroup group = group("partial", type, "a");
         group.citationsInStorageOrder.getFirst().setPageInfo(Optional.of(OOText.fromString("p. 5")));
         group.setCitationMarker(Optional.of(OOText.fromString("previous")));
@@ -335,7 +335,7 @@ class CslRendererTest {
 
     @ParameterizedTest
     @ValueSource(booleans = {false, true})
-    void partialOnlyKeysParticipateInTheSameNumberingAndBibliography(boolean sorted) throws RenderException {
+    void partialOnlyKeysParticipateInTheSameNumberingAndBibliography(boolean sorted) throws Exception {
         List<BibEntry> entries = List.of(entry("a", "Zebra"), entry("b", "Middle"), entry("c", "Alpha"));
         RenderRequest request = request(List.of(group("author", CitationType.AUTHOR_ONLY, "a"), group("year", CitationType.YEAR_ONLY, "b"),
                 group("normal", CitationType.AUTHORYEAR_PAR, "c")), entries);
@@ -349,7 +349,7 @@ class CslRendererTest {
     }
 
     @Test
-    void partialFieldsResolveCrossrefsAndStringsInTheirOwnLibrary() throws RenderException {
+    void partialFieldsResolveCrossrefsAndStringsInTheirOwnLibrary() throws Exception {
         BibEntry child = new BibEntry().withCitationKey("child").withField(StandardField.CROSSREF, "parent");
         BibEntry parent = new BibEntry().withCitationKey("parent").withField(StandardField.AUTHOR, "#authors#").withField(StandardField.YEAR, "#year#");
         BibEntry dated = new BibEntry().withCitationKey("dated").withField(StandardField.DATE, "#date#");
@@ -369,7 +369,7 @@ class CslRendererTest {
     }
 
     @Test
-    void sameAuthorAndYearDoNotInventDisambiguationSuffixes() throws RenderException {
+    void sameAuthorAndYearDoNotInventDisambiguationSuffixes() throws Exception {
         RenderRequest request = request(List.of(group("authors", CitationType.AUTHOR_ONLY, "a", "b"), group("years", CitationType.YEAR_ONLY, "a", "b")),
                 List.of(entry("a", "A"), entry("b", "B")));
 
@@ -377,7 +377,7 @@ class CslRendererTest {
     }
 
     @Test
-    void nativeRenderingApproximatesCanonicalOnlyModesWithNormalCitations() throws RenderException {
+    void nativeRenderingApproximatesCanonicalOnlyModesWithNormalCitations() throws Exception {
         RenderRequest request = request(List.of(group("author", CitationType.AUTHOR_ONLY, "a"), group("year", CitationType.YEAR_ONLY, "b"),
                         group("nopar", CitationType.AUTHORYEAR_NOPAR, "a"), group("narrative", CitationType.AUTHORYEAR_INTEXT, "b"),
                         group("invisible", CitationType.INVISIBLE_CIT, "c"), group("normal", CitationType.AUTHORYEAR_PAR, "c")),
@@ -388,7 +388,7 @@ class CslRendererTest {
 
     @ParameterizedTest
     @MethodSource("partialStyles")
-    void nativeRenderingMatchesCanonicalRenderingForSupportedTypes(CitationStyle style) throws RenderException {
+    void nativeRenderingMatchesCanonicalRenderingForSupportedTypes(CitationStyle style) throws Exception {
         RenderRequest request = request(List.of(group("normal", CitationType.AUTHORYEAR_PAR, "a"), group("narrative", CitationType.AUTHORYEAR_INTEXT, "a"),
                 group("other", CitationType.AUTHORYEAR_PAR, "b")), List.of(entry("a", "A"), entry("b", "B")));
         CslRenderer renderer = new CslRenderer(style, entryTypesManager);

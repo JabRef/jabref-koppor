@@ -12,7 +12,6 @@ import org.jabref.logic.shared.DBMSType;
 
 import com.github.javakeyring.BackendNotSupportedException;
 import com.github.javakeyring.Keyring;
-import com.github.javakeyring.PasswordAccessException;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -129,7 +128,7 @@ class SharedDatabasePreferencesTest {
 
     // [utest->req~shared-database.saved-connections-deletable~1]
     @Test
-    void removedConnectionIsNotListed() throws BackingStoreException {
+    void removedConnectionIsNotListed() throws Exception {
         preferences.remove();
 
         assertEquals(List.of(), preferences.listSavedIds());
@@ -137,7 +136,7 @@ class SharedDatabasePreferencesTest {
 
     // [utest->req~shared-database.saved-connections-deletable~1]
     @Test
-    void removingConnectionDeletesItsPassword() throws BackingStoreException, PasswordAccessException {
+    void removingConnectionDeletesItsPassword() throws Exception {
         preferences.remove();
 
         verify(keyring).deletePassword("org.jabref.shareddatabase", ID);
@@ -237,7 +236,7 @@ class SharedDatabasePreferencesTest {
 
     /// Removing its settings would leave the password behind under an identifier nothing refers to anymore
     @Test
-    void clearingAllConnectionsKeepsConnectionWhosePasswordCannotBeRemoved() throws BackingStoreException {
+    void clearingAllConnectionsKeepsConnectionWhosePasswordCannotBeRemoved() throws Exception {
         SharedDatabasePreferences lastUsedWithoutKeyring = new SharedDatabasePreferences(connectionsRoot, "default", () -> {
             throw new IOException("Credential store locked");
         });
@@ -249,7 +248,7 @@ class SharedDatabasePreferencesTest {
 
     /// Without a keyring backend no password can have been stored, so none can be left behind
     @Test
-    void clearingAllConnectionsWithoutKeyringBackendRemovesThem() throws BackingStoreException {
+    void clearingAllConnectionsWithoutKeyringBackendRemovesThem() throws Exception {
         SharedDatabasePreferences lastUsedWithoutBackend = new SharedDatabasePreferences(connectionsRoot, "default", () -> {
             throw new BackendNotSupportedException("No keyring backend");
         });
@@ -260,7 +259,7 @@ class SharedDatabasePreferencesTest {
     }
 
     @Test
-    void clearingAllConnectionsRemovesEveryStoredConnection() throws BackingStoreException {
+    void clearingAllConnectionsRemovesEveryStoredConnection() throws Exception {
         storeFieldConnection(OTHER_ID, "localhost", "5432", "other", "alice");
         SharedDatabasePreferences lastUsed = new SharedDatabasePreferences(connectionsRoot, "default", () -> keyring);
         lastUsed.setHost("localhost");

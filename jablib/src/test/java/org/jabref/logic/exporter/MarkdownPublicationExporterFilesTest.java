@@ -40,7 +40,7 @@ class MarkdownPublicationExporterFilesTest {
 
     @ParameterizedTest
     @MethodSource("fileNames")
-    void performExport(String bibFileName, @TempDir Path testFolder) throws URISyntaxException, IOException, SaveException {
+    void performExport(String bibFileName, @TempDir Path testFolder) throws Exception {
         ImportFormatPreferences importFormatPreferences = mock(ImportFormatPreferences.class, Answers.RETURNS_DEEP_STUBS);
         when(importFormatPreferences.bibEntryPreferences()).thenReturn(new BibEntryPreferences(','));
         BibtexImporter bibtexImporter = new BibtexImporter(importFormatPreferences, new DummyFileUpdateMonitor());

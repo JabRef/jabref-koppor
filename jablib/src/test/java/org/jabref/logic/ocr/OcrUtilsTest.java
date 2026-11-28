@@ -1,6 +1,5 @@
 package org.jabref.logic.ocr;
 
-import java.net.URISyntaxException;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
@@ -14,7 +13,7 @@ import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 @NullMarked
 class OcrUtilsTest {
     @Test
-    void nonZeroExitPreservesCommandAndOutput() throws URISyntaxException {
+    void nonZeroExitPreservesCommandAndOutput() throws Exception {
         String javaExecutable = ProcessHandle.current().info().command().orElseThrow();
         String classPath = Path.of(
                 FailingProcess.class.getProtectionDomain()

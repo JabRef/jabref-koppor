@@ -34,7 +34,7 @@ class CslRendererMarkupParityTest {
 
     @ParameterizedTest
     @MethodSource("markupCases")
-    void freshRenderingPreservesFormattingAndNeverPatchesOldText(String previousText, List<Integer> numbers, String layout, String expected) throws RenderException {
+    void freshRenderingPreservesFormattingAndNeverPatchesOldText(String previousText, List<Integer> numbers, String layout, String expected) throws Exception {
         int maximum = numbers.stream().mapToInt(Integer::intValue).max().orElse(1);
         List<CitationGroup> groups = new ArrayList<>();
         List<BibEntry> entries = new ArrayList<>();
@@ -67,7 +67,7 @@ class CslRendererMarkupParityTest {
     // [utest->req~openoffice.csl-partial-citations~1]
     @ParameterizedTest
     @MethodSource("partialTextCases")
-    void partialFieldsAndFallbackKeysAreEscapedAsLiteralText(CitationType type, BibEntry entry, String expected) throws RenderException {
+    void partialFieldsAndFallbackKeysAreEscapedAsLiteralText(CitationType type, BibEntry entry, String expected) throws Exception {
         CitationGroup target = group("partial", type, entry.getCitationKey().orElseThrow());
         RenderRequest request = new RenderRequest(List.of(target), List.of(new BibDatabase(List.of(entry))), new RenderOptions(BstCitationFormat.NUMERIC));
         RenderResult result = new CslRenderer(numericStyle(false, false), new BibEntryTypesManager()).render(request);
@@ -77,7 +77,7 @@ class CslRendererMarkupParityTest {
 
     @ParameterizedTest
     @EnumSource(value = CitationType.class, names = {"AUTHOR_ONLY", "YEAR_ONLY"})
-    void entirelyUnresolvedPartialGroupsRemainVisibleAndEscaped(CitationType type) throws RenderException {
+    void entirelyUnresolvedPartialGroupsRemainVisibleAndEscaped(CitationType type) throws Exception {
         String key = "<i>missing</i>&";
         CitationGroup target = group("missing", type, key, key);
         RenderRequest request = new RenderRequest(List.of(target), List.of(), new RenderOptions(BstCitationFormat.NUMERIC));

@@ -236,7 +236,7 @@ class JournalAbbreviationsViewModelTabTest {
     }
 
     @Test
-    void externalListChoiceIsLocalUntilSavedAndRemainsEditableWhenDisabled() throws IOException {
+    void externalListChoiceIsLocalUntilSavedAndRemainsEditableWhenDisabled() throws Exception {
         // [utest->req~journals.disable-external~1]
         Files.writeString(emptyTestFile, "External Journal;Ext. J.;Ext. J.");
         AbbreviationPreferences preferences = new AbbreviationPreferences(List.of(emptyTestFile.toString()), true, false);
@@ -296,7 +296,7 @@ class JournalAbbreviationsViewModelTabTest {
     }
 
     @Test
-    void overlappingSavesKeepLatestExternalEditsAndToggle() throws IOException {
+    void overlappingSavesKeepLatestExternalEditsAndToggle() throws Exception {
         AbbreviationPreferences preferences = new AbbreviationPreferences(List.of(emptyTestFile.toString()), true, false);
         List<Runnable> queued = new ArrayList<>();
         TaskExecutor executor = new QueuedTaskExecutor(queued);
@@ -324,7 +324,7 @@ class JournalAbbreviationsViewModelTabTest {
 
     @ParameterizedTest
     @ValueSource(booleans = {true, false})
-    void newerSaveFromReopenedPreferencesIsNotOverwrittenByOlderSave(boolean editReopenedList) throws IOException {
+    void newerSaveFromReopenedPreferencesIsNotOverwrittenByOlderSave(boolean editReopenedList) throws Exception {
         AbbreviationPreferences preferences = new AbbreviationPreferences(List.of(emptyTestFile.toString()), true, false);
         List<Runnable> queued = new ArrayList<>();
         TaskExecutor executor = new QueuedTaskExecutor(queued);
@@ -353,7 +353,7 @@ class JournalAbbreviationsViewModelTabTest {
     }
 
     @Test
-    void editAfterSaveSnapshotIsWrittenByNextSave() throws IOException {
+    void editAfterSaveSnapshotIsWrittenByNextSave() throws Exception {
         AbbreviationPreferences preferences = new AbbreviationPreferences(List.of(emptyTestFile.toString()), true, false);
         List<Runnable> queued = new ArrayList<>();
         TaskExecutor executor = new QueuedTaskExecutor(queued);
@@ -373,7 +373,7 @@ class JournalAbbreviationsViewModelTabTest {
     }
 
     @Test
-    void failedWritesShowPathsAndRemainRetryable() throws IOException {
+    void failedWritesShowPathsAndRemainRetryable() throws Exception {
         // [utest->req~journals.report-write-failures~1]
         Path failedLast = tempFolder.resolve("missing/z.csv");
         Path failedFirst = tempFolder.resolve("missing/a.csv");
@@ -408,14 +408,14 @@ class JournalAbbreviationsViewModelTabTest {
 
     @ParameterizedTest
     @MethodSource("provideTestFiles")
-    void initialWithSavedFilesIncrementsFilesCounter(TestData testData) throws IOException {
+    void initialWithSavedFilesIncrementsFilesCounter(TestData testData) throws Exception {
         addFourTestFileToViewModelAndPreferences(testData);
         assertEquals(4, viewModel.journalFilesProperty().size());
     }
 
     @ParameterizedTest
     @MethodSource("provideTestFiles")
-    void removeDuplicatesWhenReadingFiles(TestData testData) throws IOException {
+    void removeDuplicatesWhenReadingFiles(TestData testData) throws Exception {
         addFourTestFileToViewModelAndPreferences(testData);
         viewModel.selectLastJournalFile();
 
@@ -434,7 +434,7 @@ class JournalAbbreviationsViewModelTabTest {
 
     @ParameterizedTest
     @MethodSource("provideTestFiles")
-    void addDuplicatedFileResultsInErrorDialog(TestData testData) throws IOException {
+    void addDuplicatedFileResultsInErrorDialog(TestData testData) throws Exception {
         when(dialogService.showFileSaveDialog(any())).thenReturn(Optional.of(createTestFile(testData.csvFiles.getFirst())));
         viewModel.addNewFile();
         viewModel.addNewFile();
@@ -443,7 +443,7 @@ class JournalAbbreviationsViewModelTabTest {
 
     @ParameterizedTest
     @MethodSource("provideTestFiles")
-    void openDuplicatedFileResultsInAnException(TestData testData) throws IOException {
+    void openDuplicatedFileResultsInAnException(TestData testData) throws Exception {
         when(dialogService.showFileOpenDialog(any())).thenReturn(Optional.of(createTestFile(testData.csvFiles.getFirst())));
         viewModel.openFile();
         viewModel.openFile();
@@ -483,7 +483,7 @@ class JournalAbbreviationsViewModelTabTest {
     }
 
     @Test
-    void savingDuplicateRowsUsesFirstListContentsAndEnabledState() throws IOException {
+    void savingDuplicateRowsUsesFirstListContentsAndEnabledState() throws Exception {
         AbbreviationPreferences preferences = new AbbreviationPreferences(List.of(emptyTestFile.toString()), true, false);
         preferences.setUseBuiltInJournalList(false);
         JournalAbbreviationsTabViewModel model = new JournalAbbreviationsTabViewModel(
@@ -504,7 +504,7 @@ class JournalAbbreviationsViewModelTabTest {
 
     @ParameterizedTest
     @MethodSource("provideTestFiles")
-    void selectLastJournalFileSwitchesFilesAndTheirAbbreviations(TestData testData) throws IOException {
+    void selectLastJournalFileSwitchesFilesAndTheirAbbreviations(TestData testData) throws Exception {
         when(dialogService.showFileSaveDialog(any())).thenReturn(Optional.of(emptyTestFile));
         viewModel.addNewFile();
         viewModel.selectLastJournalFile();
@@ -518,7 +518,7 @@ class JournalAbbreviationsViewModelTabTest {
 
     @ParameterizedTest
     @MethodSource("provideTestFiles")
-    void openValidFileContainsTheSpecificEntryAndEnoughAbbreviations(TestData testData) throws IOException {
+    void openValidFileContainsTheSpecificEntryAndEnoughAbbreviations(TestData testData) throws Exception {
         when(dialogService.showFileSaveDialog(any())).thenReturn(Optional.of(createTestFile(testData.csvFiles.get(2))));
         viewModel.addNewFile();
         viewModel.selectLastJournalFile();
@@ -531,7 +531,7 @@ class JournalAbbreviationsViewModelTabTest {
 
     @ParameterizedTest
     @MethodSource("provideTestFiles")
-    void removeLastListSetsCurrentFileAndCurrentAbbreviationToNull(TestData testData) throws IOException {
+    void removeLastListSetsCurrentFileAndCurrentAbbreviationToNull(TestData testData) throws Exception {
         when(dialogService.showFileSaveDialog(any())).thenReturn(Optional.of(createTestFile(testData.csvFiles.getFirst())));
         viewModel.addNewFile();
         viewModel.removeCurrentFile();
@@ -544,7 +544,7 @@ class JournalAbbreviationsViewModelTabTest {
 
     @ParameterizedTest
     @MethodSource("provideTestFiles")
-    void mixedFileUsage(TestData testData) throws IOException {
+    void mixedFileUsage(TestData testData) throws Exception {
         // simulate open file button twice
         when(dialogService.showFileSaveDialog(any())).thenReturn(Optional.of(createTestFile(testData.csvFiles.get(1))));
         viewModel.addNewFile();
@@ -603,7 +603,7 @@ class JournalAbbreviationsViewModelTabTest {
 
     @ParameterizedTest
     @MethodSource("provideTestFiles")
-    void currentFilePropertyChangeActiveFile(TestData testData) throws IOException {
+    void currentFilePropertyChangeActiveFile(TestData testData) throws Exception {
         for (CsvFileNameAndContent testFile : testData.csvFiles) {
             when(dialogService.showFileSaveDialog(any())).thenReturn(Optional.of(createTestFile(testFile)));
             viewModel.addNewFile();
@@ -635,7 +635,7 @@ class JournalAbbreviationsViewModelTabTest {
 
     @ParameterizedTest
     @MethodSource("provideTestFiles")
-    void addAbbreviationIncludesAbbreviationsInAbbreviationList(TestData testData) throws IOException {
+    void addAbbreviationIncludesAbbreviationsInAbbreviationList(TestData testData) throws Exception {
         when(dialogService.showFileSaveDialog(any())).thenReturn(Optional.of(createTestFile(testData.csvFiles.get(2))));
         viewModel.addNewFile();
         when(dialogService.showFileSaveDialog(any())).thenReturn(Optional.of(createTestFile(testData.csvFiles.get(3))));
@@ -650,7 +650,7 @@ class JournalAbbreviationsViewModelTabTest {
 
     @ParameterizedTest
     @MethodSource("provideTestFiles")
-    void addDuplicatedAbbreviationResultsInException(TestData testData) throws IOException {
+    void addDuplicatedAbbreviationResultsInException(TestData testData) throws Exception {
         when(dialogService.showFileSaveDialog(any())).thenReturn(Optional.of(createTestFile(testData.csvFiles.get(1))));
         viewModel.addNewFile();
         viewModel.selectLastJournalFile();
@@ -673,7 +673,7 @@ class JournalAbbreviationsViewModelTabTest {
 
     @ParameterizedTest
     @MethodSource("provideTestFiles")
-    void editAbbreviationIncludesNewAbbreviationInAbbreviationsList(TestData testData) throws IOException {
+    void editAbbreviationIncludesNewAbbreviationInAbbreviationsList(TestData testData) throws Exception {
         when(dialogService.showFileSaveDialog(any())).thenReturn(Optional.of(createTestFile(testData.csvFiles.get(2))));
         viewModel.addNewFile();
         when(dialogService.showFileSaveDialog(any())).thenReturn(Optional.of(createTestFile(testData.csvFiles.get(3))));
@@ -697,7 +697,7 @@ class JournalAbbreviationsViewModelTabTest {
 
     @ParameterizedTest
     @MethodSource("provideTestFiles")
-    void editAbbreviationToExistingOneResultsInException(TestData testData) throws IOException {
+    void editAbbreviationToExistingOneResultsInException(TestData testData) throws Exception {
         when(dialogService.showFileSaveDialog(any())).thenReturn(Optional.of(createTestFile(testData.csvFiles.get(1))));
         viewModel.addNewFile();
         viewModel.selectLastJournalFile();
@@ -713,7 +713,7 @@ class JournalAbbreviationsViewModelTabTest {
 
     @ParameterizedTest
     @MethodSource("provideTestFiles")
-    void editAbbreviationToEmptyNameResultsInException(TestData testData) throws IOException {
+    void editAbbreviationToEmptyNameResultsInException(TestData testData) throws Exception {
         when(dialogService.showFileSaveDialog(any())).thenReturn(Optional.of(createTestFile(testData.csvFiles.get(1))));
         viewModel.addNewFile();
         viewModel.selectLastJournalFile();
@@ -727,7 +727,7 @@ class JournalAbbreviationsViewModelTabTest {
 
     @ParameterizedTest
     @MethodSource("provideTestFiles")
-    void editAbbreviationToEmptyAbbreviationResultsInException(TestData testData) throws IOException {
+    void editAbbreviationToEmptyAbbreviationResultsInException(TestData testData) throws Exception {
         when(dialogService.showFileSaveDialog(any())).thenReturn(Optional.of(createTestFile(testData.csvFiles.get(1))));
         viewModel.addNewFile();
         viewModel.selectLastJournalFile();
@@ -741,7 +741,7 @@ class JournalAbbreviationsViewModelTabTest {
 
     @ParameterizedTest
     @MethodSource("provideTestFiles")
-    void saveAbbreviationsToFilesCreatesNewFilesWithWrittenAbbreviations(TestData testData) throws IOException {
+    void saveAbbreviationsToFilesCreatesNewFilesWithWrittenAbbreviations(TestData testData) throws Exception {
         Path testFile2 = createTestFile(testData.csvFiles.get(2));
         when(dialogService.showFileSaveDialog(any())).thenReturn(Optional.of(testFile2));
         viewModel.addNewFile();

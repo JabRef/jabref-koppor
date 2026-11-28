@@ -34,14 +34,14 @@ class LinkNotificationTest {
     }
 
     @Test
-    void openActionOpensThePage() throws IOException {
+    void openActionOpensThePage() throws Exception {
         notification.getActions().getFirst().getOnAction().call(notification);
 
         verify(nativeDesktop).openBrowser(PAGE);
     }
 
     @Test
-    void failedOpenKeepsTheNotificationForCopying() throws IOException {
+    void failedOpenKeepsTheNotificationForCopying() throws Exception {
         doThrow(new IOException("no browser")).when(nativeDesktop).openBrowser(PAGE);
         LinkNotification removedAfterUse = new LinkNotification(
                 "Title", "Description", PAGE, dialogService, clipBoardManager, Notification.OnClickBehaviour.REMOVE)

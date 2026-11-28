@@ -1,6 +1,5 @@
 package org.jabref.logic.layout.format;
 
-import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
@@ -22,7 +21,7 @@ class WrapFileLinksTest {
     }
 
     @Test
-    void absoluteLinkWithoutAnyFileDirectory(@TempDir Path tempDir) throws IOException {
+    void absoluteLinkWithoutAnyFileDirectory(@TempDir Path tempDir) throws Exception {
         Path file = Files.createFile(tempDir.resolve("test.pdf"));
         WrapFileLinks withoutDirectories = new WrapFileLinks(List.of(), null);
         withoutDirectories.setArgument("\\p");
@@ -106,7 +105,7 @@ class WrapFileLinksTest {
     }
 
     @Test
-    void path() throws IOException {
+    void path() throws Exception {
         formatter = new WrapFileLinks(List.of(Path.of("src/test/resources/pdfs/")), Path.of(""));
         formatter.setArgument("\\p");
         assertEquals(Path.of("src/test/resources/pdfs/encrypted.pdf").toRealPath().toString(),
@@ -114,7 +113,7 @@ class WrapFileLinksTest {
     }
 
     @Test
-    void pathFallBackToGeneratedDir() throws IOException {
+    void pathFallBackToGeneratedDir() throws Exception {
         formatter = new WrapFileLinks(List.of(), Path.of("src/test/resources/pdfs/"));
         formatter.setArgument("\\p");
         assertEquals(Path.of("src/test/resources/pdfs/encrypted.pdf").toRealPath().toString(),
